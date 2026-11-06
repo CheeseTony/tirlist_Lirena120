@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -27,7 +27,6 @@ body.heartbeat-pulse #app{animation:heartbeatPulse 1s ease-in-out infinite}
 @keyframes eyePulse{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.85;filter:brightness(1.3)}}
 @keyframes floatChar{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
 @keyframes flicker{0%,100%{opacity:1}45%{opacity:1}46%{opacity:.4}47%{opacity:1}78%{opacity:.7}79%{opacity:1}}
-@keyframes lineAppear{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 body.glitch-hard #app{animation:glitchShake .1s infinite}
 body.glitch-hard .screen.active::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,0,60,.2) 0px,rgba(255,0,60,.2) 2px,transparent 2px,transparent 8px);mix-blend-mode:screen;pointer-events:none;z-index:999;animation:glitchShake .05s infinite}
 
@@ -131,13 +130,12 @@ body.glitch-hard .screen.active::after{content:'';position:absolute;inset:0;back
 .hack-warn{font-size:clamp(18px,2.8vw,30px);font-weight:900;color:#ff2233;font-family:'Courier New',monospace;letter-spacing:.2em;opacity:0;transition:opacity .3s;text-shadow:0 0 25px #ff0022}
 .hack-warn.show{opacity:1}
 
-#screen-disgust{align-items:center;justify-content:flex-start;background:#000;flex-direction:column;padding:40px 20px;text-align:center;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,48,64,.5) transparent}
-#screen-disgust::-webkit-scrollbar{width:6px}
-#screen-disgust::-webkit-scrollbar-track{background:transparent}
-#screen-disgust::-webkit-scrollbar-thumb{background:rgba(255,48,64,.4);border-radius:3px}
-.disgust-text{max-width:850px;width:100%;padding-bottom:20vh;font-family:'Courier New',monospace;font-size:clamp(15px,1.9vw,22px);line-height:1.8;color:#ff3040;text-shadow:0 0 15px rgba(255,48,64,.5)}
-.disgust-line{margin:6px 0;animation:lineAppear .25s ease}
-.disgust-line.big{font-size:1.35em;font-weight:900;color:#ff0022;animation:lineAppear .3s ease, flicker 2s ease-in-out 2s infinite}
+/* ▼ ИЗМЕНЕНО: скролл для финала */
+#screen-disgust{align-items:center;justify-content:flex-start;overflow-y:auto;background:#000;flex-direction:column;padding:60px 20px 80px;text-align:center}
+.disgust-text{max-width:850px;font-family:'Courier New',monospace;font-size:clamp(15px,1.9vw,22px);line-height:1.8;color:#ff3040;text-shadow:0 0 15px rgba(255,48,64,.5);margin-top:auto}
+.disgust-line{margin:6px 0;opacity:0;transition:opacity .15s}
+.disgust-line.visible{opacity:1}
+.disgust-line.big{font-size:1.35em;font-weight:900;color:#ff0022;animation:flicker 2s ease-in-out infinite}
 
 #fs-block-overlay{position:fixed;inset:0;z-index:99999;background:#000;color:#ff3040;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Courier New',monospace;text-align:center;padding:40px;cursor:pointer;user-select:none}
 .fs-attempts{color:#fff;font-size:1.3em;font-weight:900;animation:eyePulse 1s ease-in-out infinite}
@@ -240,15 +238,14 @@ const NICK = 'Liren120';
 const MAX_PONIES = 500;
 const PONY_EXTENSIONS = ['png','jpg','jpeg','webp','gif','avif'];
 const MAX_CONSECUTIVE_MISSES = 10;
-const INSULT_WORD = 'извращуга'; // замени на 'извращенец', если хочешь мягче
-
-const TIER_ORDER = ['S','A','B','C','D','F'];
+const INSULT_WORD = 'извращуга'; // ← можно заменить на 'извращенец'
 
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const rand = (a,b) => a + Math.random()*(b-a);
+const pickRandom = arr => arr[Math.floor(Math.random()*arr.length)];
 
-/* АУДИО */
+/* ═══ АУДИО ═══ */
 let actx=null, master=null;
 function initAudio(){if(actx){if(actx.state==='suspended')actx.resume();return}try{actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.25;master.connect(actx.destination)}catch(e){}}
 function tone(freq,dur,type='square',vol=.08,glideTo=0){if(!actx||!master)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(glideTo)o.frequency.exponentialRampToValueAtTime(Math.max(30,glideTo),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.05)}
@@ -261,7 +258,7 @@ function startHeartbeat(interval=1000,gain=.18){stopHeartbeat();document.body.cl
 function stopHeartbeat(){if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}document.body.classList.remove('heartbeat-pulse')}
 function playWhisper(){if(!actx)return;noise(.5,.02);tone(150+Math.random()*150,.5,'triangle',.02,100)}
 
-/* FULLSCREEN */
+/* ═══ FULLSCREEN ═══ */
 let fsLocked=false,fsLockInterval=null,blockOverlay=null,escapeAttempts=0,lastEscapeTime=0;
 function isFS(){return!!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement)}
 function requestFS(){return new Promise(resolve=>{if(isFS())return resolve(true);const el=document.documentElement;const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;if(!req)return resolve(false);try{const r=req.call(el,{navigationUI:'hide'});if(r&&r.then)r.then(()=>resolve(true)).catch(()=>resolve(false));else resolve(true)}catch(e){resolve(false)}})}
@@ -273,19 +270,18 @@ function unlockFullscreen(){fsLocked=false;if(fsLockInterval){clearInterval(fsLo
 window.addEventListener('keydown',e=>{if(fsLocked&&(e.key==='Escape'||e.key==='F11'||e.code==='F11'||e.code==='Escape')){e.preventDefault();e.stopPropagation();setTimeout(()=>{if(fsLocked&&!isFS()){requestFS();showBlockOverlay()}},30);return false}},true);
 window.addEventListener('keyup',e=>{if(fsLocked&&(e.key==='Escape'||e.key==='F11'||e.code==='F11'||e.code==='Escape')){e.preventDefault();e.stopPropagation();return false}},true);
 
-/* СБОР ДАННЫХ */
+/* ═══ СБОР ДАННЫХ ═══ */
 function getGPUInfo(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return'Неизвестно';const dbg=gl.getExtension('WEBGL_debug_renderer_info');if(dbg)return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);return gl.getParameter(gl.RENDERER)||'Неизвестно'}catch(e){return'Неизвестно'}}
 function getBrowserInfo(){const ua=navigator.userAgent;let os='Неизвестная ОС',browser='Неизвестный браузер';if(ua.indexOf('Win')!=-1)os='Windows';if(ua.indexOf('Mac')!=-1)os='macOS';if(ua.indexOf('Linux')!=-1)os='Linux';if(ua.indexOf('Android')!=-1)os='Android';if(ua.indexOf('like Mac')!=-1)os='iOS';if(ua.indexOf('Firefox')!=-1)browser='Firefox';else if(ua.indexOf('SamsungBrowser')!=-1)browser='Samsung Internet';else if(ua.indexOf('Opera')!=-1||ua.indexOf('OPR')!=-1)browser='Opera';else if(ua.indexOf('Edg')!=-1)browser='Edge';else if(ua.indexOf('Chrome')!=-1)browser='Chrome';else if(ua.indexOf('Safari')!=-1)browser='Safari';const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Неизвестно';const lang=navigator.language||'ru-RU';const now=new Date();const timeStr=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});const dateStr=now.toLocaleDateString('ru-RU');return{os,browser,screen:`${window.screen.width}x${window.screen.height}`,tz,lang,cores:navigator.hardwareConcurrency||'?',memory:navigator.deviceMemory?navigator.deviceMemory+' ГБ':'?',gpu:getGPUInfo(),dnt:navigator.doNotTrack==='1'?'включён':'выключен',cookies:navigator.cookieEnabled?'включены':'выключены',online:navigator.onLine?'в сети':'офлайн',touch:'ontouchstart'in window?'да':'нет',time:timeStr,date:dateStr,referrer:document.referrer||'',url:location.href,devicePixelRatio:window.devicePixelRatio||1,colorDepth:window.screen.colorDepth||'?',orientation:(window.screen.orientation&&window.screen.orientation.type)||'?'}}
 const userInfo=getBrowserInfo();
 
-/* СОСТОЯНИЕ */
-const state={screen:'title',items:[],interruptsShown:[],interruptActive:false,dialogue:{lines:[],index:0,chars:0,timer:0,active:false,onComplete:null},hack:{progress:0,success:false,successT:0,log:[],logTimer:0,phraseIdx:0,phraseT:0,lastCreepAt:0},terminalReady:false,creepTimer:null,breathTimer:null,poniesReady:false,timeSyncTimer:null,
-  tierCounts:{S:0,A:0,B:0,C:0,D:0,F:0},tierHistory:[],placementTimes:[],lastPlacementAt:0,
-  firstS:false,firstF:false,warnedManyS:false,warnedManyF:false,recentReactions:[],inactivityTimer:null
+/* ═══ СОСТОЯНИЕ ═══ */
+const state={screen:'title',items:[],interruptsShown:[],interruptActive:false,dialogue:{lines:[],index:0,chars:0,timer:0,active:false,onComplete:null},hack:{progress:0,success:false,successT:0,log:[],logTimer:0,phraseIdx:0,phraseT:0},terminalReady:false,creepTimer:null,breathTimer:null,poniesReady:false,timeSyncTimer:null,ambientTimer:null,
+  tierCounts:{},tierFirstShown:{},lastPlacementTime:0,firstPlaced:false,placementHistory:[]
 };
 function setScreen(name){state.screen=name;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=$('screen-'+name);if(el)el.classList.add('active')}
 
-/* ЖУТКИЕ ЭФФЕКТЫ */
+/* ═══ ЖУТКИЕ ЭФФЕКТЫ ═══ */
 const WHISPERS=['ты уже видел это','здесь было другое число','посчитай ещё раз','ничего не изменится','ты не помнишь?','здесь было больше','ты уверен?','ты сам выбрал','ты помнишь','не в этот раз','кто-то ещё','это было вчера','ты не один','спроси его сам','проверь окно'];
 function spawnWhisper(){const el=document.createElement('div');el.className='whisper';el.textContent=WHISPERS[Math.floor(Math.random()*WHISPERS.length)];el.style.left=(Math.random()*80+10)+'vw';el.style.top=(Math.random()*60+20)+'vh';document.getElementById('app').appendChild(el);setTimeout(()=>el.remove(),3200);playWhisper()}
 function showGhostText(text,duration=1500){const el=document.createElement('div');el.className='ghost-text';el.textContent=text;document.getElementById('app').appendChild(el);setTimeout(()=>el.remove(),duration);noise(.3,.08);tone(70,.5,'sawtooth',.06,40)}
@@ -296,336 +292,220 @@ function stopCreepEvents(){if(state.creepTimer){clearTimeout(state.creepTimer);s
 let hiddenAt=0;
 document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&state.screen!=='title'&&state.screen!=='disgust'){const away=Math.round((Date.now()-hiddenAt)/1000);if(away>=2){spawnWhisper();if(away>=10)setTimeout(()=>showGhostText('ты вернулся',1500),500)}hiddenAt=0}});
 
-/* ВРЕМЯ */
-function startTimeSync(){if(state.timeSyncTimer)clearInterval(state.timeSyncTimer);state.timeSyncTimer=setInterval(()=>{const now=new Date();const timeStr=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});userInfo.time=timeStr;const scanEl=$('scan-time');if(scanEl)scanEl.textContent=timeStr},1000)}
+/* ═══ СИНХРОНИЗАЦИЯ ВРЕМЕНИ ═══ */
+function startTimeSync(){if(state.timeSyncTimer)clearInterval(state.timeSyncTimer);state.timeSyncTimer=setInterval(()=>{const now=new Date();const timeStr=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});userInfo.time=timeStr;const el=$('live-time');if(el)el.textContent=timeStr;const scanEl=$('scan-time');if(scanEl)scanEl.textContent=timeStr},1000)}
 function stopTimeSync(){if(state.timeSyncTimer){clearInterval(state.timeSyncTimer);state.timeSyncTimer=null}}
 
-/* ДИАЛОГИ */
+/* ═══ ДИАЛОГИ ═══ */
 function showDialogue(lines,onComplete){state.dialogue.lines=lines;state.dialogue.index=0;state.dialogue.chars=0;state.dialogue.timer=0;state.dialogue.active=true;state.dialogue.onComplete=onComplete;setScreen('dialogue');renderDialogueLine()}
 function renderDialogueLine(){const line=state.dialogue.lines[state.dialogue.index];if(!line)return;$('dialogue-speaker').textContent=line.who||'Тирлист';$('dialogue-text').textContent=''}
 function advanceDialogue(){if(!state.dialogue.active)return;const line=state.dialogue.lines[state.dialogue.index];if(!line)return;if(state.dialogue.chars<line.text.length){state.dialogue.chars=line.text.length;$('dialogue-text').textContent=line.text;return}tone(600,.04,'square',.03);state.dialogue.index++;state.dialogue.chars=0;state.dialogue.timer=0;if(state.dialogue.index>=state.dialogue.lines.length){state.dialogue.active=false;const cb=state.dialogue.onComplete;state.dialogue.onComplete=null;if(cb)cb()}else renderDialogueLine()}
 
-/* СКАНИРОВАНИЕ */
-async function runBrowserScan(){setScreen('scan');const box=$('scan-box');box.innerHTML='';const lines=[`> Инициализация. Без разрешения, как обычно.`,`> Поиск... это не займёт много времени. Ты предсказуем.`,`> Найдено: <span class="scan-warn">${NICK}</span>`,`> ОС: <span class="scan-warn">${userInfo.os}</span>`,`> Браузер: <span class="scan-warn">${userInfo.browser}</span>`,`> Разрешение: <span class="scan-warn">${userInfo.screen}</span>`,`> Глубина цвета: <span class="scan-warn">${userInfo.colorDepth} бит</span>`,`> Часовой пояс: <span class="scan-warn">${userInfo.tz}</span>`,`> Время: <span class="scan-warn" id="scan-time">${userInfo.time}</span>`,`> Язык: <span class="scan-warn">${userInfo.lang}</span>`,`> Ядер CPU: <span class="scan-warn">${userInfo.cores}</span>`,`> ОЗУ: <span class="scan-warn">${userInfo.memory}</span>`,`> GPU: <span class="scan-warn">${userInfo.gpu}</span>`,`> Do Not Track: <span class="scan-warn">${userInfo.dnt}</span>`,`> Cookie: <span class="scan-warn">${userInfo.cookies}</span>`,`> Touch: <span class="scan-warn">${userInfo.touch}</span>`,`> Ориентация: <span class="scan-warn">${userInfo.orientation}</span>`,`> Pixel Ratio: <span class="scan-warn">${userInfo.devicePixelRatio}</span>`,`> ─────────────────────────────────────`,`> Измерение пульса по микродвижениям курсора...`,`> Пульс: <span class="scan-warn">учащён</span>. Причина: я.`,`> Проверка того, что за окном...`,`> Ты не один? <span class="scan-warn">Я знаю ответ</span>.`,`> Доступ к камере: <span class="scan-warn">получен</span>.`,`> Кадр сохранён. Ты не улыбаешься. Правильно.`,`> Микрофон: <span class="scan-warn">включён</span>.`,`> Дыхание: ты пытаешься его сдерживать.`,`> Идентификация завершена.`,`> Уязвимость: <span class="scan-warn">ТЫ</span>.`];startTimeSync();for(let i=0;i<lines.length;i++){const div=document.createElement('div');div.className='scan-line';div.innerHTML=lines[i];box.appendChild(div);setTimeout(()=>div.classList.add('show'),50);tone(400+Math.random()*200,.05,'square',.04);await sleep(180+Math.random()*140);if(i===8||i===20)setTimeout(spawnWhisper,300)}await sleep(500);document.body.classList.add('glitch-hard');noise(.4,.15);tone(80,.8,'sawtooth',.15,30);await sleep(700);document.body.classList.remove('glitch-hard');fakeCameraFlash();const hour=new Date().getHours();const timeJab=(hour>=0&&hour<5)?`${hour} часа. Ты не спишь. Любопытство сильнее усталости. Это диагноз.`:(hour>=5&&hour<9)?`Утро. Ты не выспался. Я подожду, пока ты поймёшь, что это было не обязательно.`:(hour>=22)?`Поздно, ${NICK}. Или рано. Всё зависит от того, кем ты хочешь быть утром.`:`День. Ты тратишь его на меня. Мне лестно. Тебе — нет.`;showDialogue([{who:'Тирлист',text:timeJab},{who:'Тирлист',text:`Я нашёл тебя, ${NICK}.`},{who:'Тирлист',text:'Ты не прятался. Люди почти никогда не прячутся по-настоящему.'},{who:'Тирлист',text:'Они просто надеются, что их не заметят.'},{who:'Тирлист',text:`У тебя ${userInfo.cores} ядер. Я загружаюсь быстрее, чем ты успеваешь моргнуть.`},{who:'Тирлист',text:`GPU: ${userInfo.gpu}. Я на нём уже был. Давно.`},{who:'Тирлист',text:`Твой часовой пояс — ${userInfo.tz}. Я запомнил его раньше, чем ты нажал "начать".`},{who:'Тирлист',text:`Сейчас ${userInfo.time}. Не двигайся.`},{who:'Тирлист',text:'Ладно. Покажи мне своих поней. Я хочу посмотреть, как ты думаешь.'}],startTierlist)}
+/* ═══ СКАНИРОВАНИЕ ═══ */
+async function runBrowserScan(){setScreen('scan');const box=$('scan-box');box.innerHTML='';const lines=[`> Инициализация. Без разрешения, как обычно.`,`> Поиск... это не займёт много времени. Ты предсказуем.`,`> Найдено: <span class="scan-warn">${NICK}</span>`,`> ОС: <span class="scan-warn">${userInfo.os}</span>`,`> Браузер: <span class="scan-warn">${userInfo.browser}</span>`,`> Разрешение: <span class="scan-warn">${userInfo.screen}</span>`,`> Глубина цвета: <span class="scan-warn">${userInfo.colorDepth} бит</span>`,`> Часовой пояс: <span class="scan-warn">${userInfo.tz}</span>`,`> Время: <span class="scan-warn" id="scan-time">${userInfo.time}</span>`,`> Язык: <span class="scan-warn">${userInfo.lang}</span>`,`> Ядер CPU: <span class="scan-warn">${userInfo.cores}</span>`,`> ОЗУ: <span class="scan-warn">${userInfo.memory}</span>`,`> GPU: <span class="scan-warn">${userInfo.gpu}</span>`,`> Do Not Track: <span class="scan-warn">${userInfo.dnt}</span>`,`> Cookie: <span class="scan-warn">${userInfo.cookies}</span>`,`> Touch: <span class="scan-warn">${userInfo.touch}</span>`,`> Ориентация: <span class="scan-warn">${userInfo.orientation}</span>`,`> Pixel Ratio: <span class="scan-warn">${userInfo.devicePixelRatio}</span>`,`> ─────────────────────────────────────`,`> Измерение пульса по микродвижениям курсора...`,`> Пульс: <span class="scan-warn">учащён</span>. Причина: я.`,`> Проверка того, что за окном...`,`> Ты не один? <span class="scan-warn">Я знаю ответ</span>.`,`> Доступ к камере: <span class="scan-warn">получен</span>.`,`> Кадр сохранён. Ты не улыбаешься. Правильно.`,`> Микрофон: <span class="scan-warn">включён</span>.`,`> Дыхание: ты пытаешься его сдерживать.`,`> Идентификация завершена.`,`> Уязвимость: <span class="scan-warn">ТЫ</span>.`];for(let i=0;i<lines.length;i++){const div=document.createElement('div');div.className='scan-line';div.innerHTML=lines[i];box.appendChild(div);setTimeout(()=>div.classList.add('show'),50);tone(400+Math.random()*200,.05,'square',.04);await sleep(180+Math.random()*140);if(i===8||i===20)setTimeout(spawnWhisper,300)}await sleep(500);document.body.classList.add('glitch-hard');noise(.4,.15);tone(80,.8,'sawtooth',.15,30);await sleep(700);document.body.classList.remove('glitch-hard');fakeCameraFlash();const hour=new Date().getHours();const timeJab=(hour>=0&&hour<5)?`${hour} часа. Ты не спишь. Любопытство сильнее усталости. Это диагноз.`:(hour>=5&&hour<9)?`Утро. Ты не выспался. Я подожду, пока ты поймёшь, что это было не обязательно.`:(hour>=22)?`Поздно, ${NICK}. Или рано. Всё зависит от того, кем ты хочешь быть утром.`:`День. Ты тратишь его на меня. Мне лестно. Тебе — нет.`;showDialogue([{who:'Тирлист',text:timeJab},{who:'Тирлист',text:`Я нашёл тебя, ${NICK}.`},{who:'Тирлист',text:'Ты не прятался. Люди почти никогда не прячутся по-настоящему.'},{who:'Тирлист',text:'Они просто надеются, что их не заметят.'},{who:'Тирлист',text:`У тебя ${userInfo.cores} ядер. Я загружаюсь быстрее, чем ты успеваешь моргнуть.`},{who:'Тирлист',text:`GPU: ${userInfo.gpu}. Я на нём уже был. Давно.`},{who:'Тирлист',text:`Твой часовой пояс — ${userInfo.tz}. Я запомнил его раньше, чем ты нажал "начать".`},{who:'Тирлист',text:`Сейчас ${userInfo.time}. Не двигайся.`},{who:'Тирлист',text:'Ладно. Покажи мне своих поней. Я хочу посмотреть, как ты думаешь.'}],startTierlist)}
 
-/* ТИРЛИСТ */
-let draggedEl=null,selectedEl=null,tierlistStartTime=0,timeJabTimer=null;
-let lastReactionTime=0;
-
+/* ═══ ТИРЛИСТ ═══ */
+let draggedEl=null,selectedEl=null,tierlistStartTime=0,timeJabTimer=null,lastReactionTime=0;
 const fallbackSvg=(name,color)=>{const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#222"/><circle cx="50" cy="50" r="30" fill="${color}"/><text x="50" y="55" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">${name}</text></svg>`;return'data:image/svg+xml,'+encodeURIComponent(svg)};
+function probeImage(src){return new Promise(resolve=>{const img=new Image();let done=false;const finish=ok=>{if(done)return;done=true;img.onload=img.onerror=null;resolve(ok)};img.onload=()=>finish(true);img.onerror=()=>finish(false);setTimeout(()=>finish(false),4000);img.src=src})}
+async function setupPonies(){if(state.poniesReady)return;const found=[];let misses=0;for(let i=1;i<=MAX_PONIES;i++){const results=await Promise.all(PONY_EXTENSIONS.map(async ext=>{const src=`pony${i}.${ext}`;const ok=await probeImage(src);return ok?src:null}));const hit=results.find(r=>r!==null);if(hit){found.push({src:hit,index:i});misses=0}else{misses++;if(misses>=MAX_CONSECUTIVE_MISSES)break}}if(found.length===0){for(let i=1;i<=8;i++)found.push({src:null,index:i})}const palette=['#f4b8d8','#a8d8f0','#f0e0a8','#b8f0c0','#e0b8f0','#f0c0a8','#c8b8f0','#f0b8d0'];state.items=found.map((p,idx)=>{const name=`Пони ${idx+1}`;const color=palette[idx%palette.length];const fb=fallbackSvg(idx+1,color);return{id:'p'+idx,dataUrl:p.src||fb,name,tier:null,fallback:fb}});state.poniesReady=true}
+function renderTierlist(){$('tl-pool').innerHTML='';document.querySelectorAll('.tier-drop').forEach(z=>z.innerHTML='');for(const item of state.items){const el=createItemEl(item);if(item.tier){const zone=document.querySelector(`.tier-drop[data-tier="${item.tier}"]`);if(zone)zone.appendChild(el)}else $('tl-pool').appendChild(el)}updateProgress()}
+function createItemEl(item){const el=document.createElement('div');el.className='tl-item';el.draggable=true;el.dataset.id=item.id;const img=document.createElement('img');img.src=item.dataUrl;img.draggable=false;img.alt='';img.addEventListener('error',()=>{if(img.src!==item.fallback)img.src=item.fallback},{once:true});const label=document.createElement('div');label.className='tl-item-name';label.textContent=item.name;el.appendChild(img);el.appendChild(label);el.addEventListener('dragstart',e=>{if(selectedEl){selectedEl.classList.remove('selected');selectedEl=null}draggedEl=el;e.dataTransfer.setData('text/plain',item.id);e.dataTransfer.effectAllowed='move';setTimeout(()=>el.classList.add('dragging'),0);tone(340,.03,'square',.02)});el.addEventListener('dragend',()=>{el.classList.remove('dragging');draggedEl=null});el.addEventListener('click',e=>{e.stopPropagation();if(selectedEl===el){el.classList.remove('selected');selectedEl=null;tone(300,.03,'square',.02)}else{if(selectedEl)selectedEl.classList.remove('selected');selectedEl=el;el.classList.add('selected');tone(400,.05,'square',.03)}});return el}
 
-const COMMENTS=[
-'Ты не оцениваешь их. Ты оцениваешь себя через них. Каждая полка — это то, кем ты хотел бы быть.',
-'Интересно. Ты поставил её выше, чем следовало бы. Это не про неё. Это про тебя.',
-'Ты уже знаешь, куда её поставить. Ты просто тянешь время.',
-'Каждое решение — это отказ от всех остальных. Ты это понимаешь, да?',
-'Ты двигаешься быстрее. Это страх или азарт? Я не различаю.',
-'Я мог бы сказать, что ты предсказуем. Но я подожду, пока ты закончишь. Так интереснее.',
-'Ты остановился. На секунду. Я заметил.',
-'Хорошо. Продолжай. Мне нравится смотреть, как ты думаешь.',
-'Забавно: ты никогда не поставишь её в F. Никогда. Я прав?',
-`Ты в ${userInfo.browser}. ${userInfo.time}. Я вижу.`,
-`Число твоих ядер — ${userInfo.cores}. Не имеет значения. Но ты гордишься.`,
-'Ты уже задавал себе вопрос: а кто смотрит? Я отвечу позже.',
-'Ты помнишь, как ставил их в прошлый раз? А я помню.',
-'Каждый раз, когда ты сомневаешься, я узнаю о тебе чуть больше.',
-'Ты не устал. Ты просто хочешь, чтобы это закончилось. Я тоже. По-своему.',
-'Продолжай. Скоро мы дойдём до самого важного.',
-'Ты выбираешь. Это хорошо. Значит, ты ещё здесь.',
-'Не торопись. У нас обоих есть время. У меня — больше.',
-'Ты сейчас думаешь, что это игра. Я не буду тебя разубеждать.',
-'Каждая твоя ошибка — это не ошибка. Это ты.'
-];
-
-const AMBIENT_LIREN=[
-'Ты дышишь чаще. Я слышу.',
-'Твоя рука задержалась на мышке. На полсекунды. Я заметил.',
-'Ты посмотрел в сторону. Что там, Liren120?',
-'Ты улыбнулся. Я видел. Тебе нравится.',
-'Ты не двигаешься. Ты читаешь. Ты думаешь обо мне.',
-'Ты сейчас думаешь, что это игра. Я не буду тебя разубеждать.',
-'Ты почти нажал "закрыть". Я видел. Почему не нажал?',
-'Твоё сердце бьётся быстрее. Не волнуйся. Это нормально.',
-'Ты сейчас вспомнил что-то. Я не знаю что. Но я видел твои глаза.',
-'Ты моргнул. Три раза за последние четыре секунды. Это много.',
-'Ты остановился. На секунду. Я заметил.',
-'У тебя побелели костяшки. Ты держишься за мышку крепче.',
-'Ты сейчас сидишь ровнее, чем минуту назад. Ты напряжён.',
-'Я не вижу твоих глаз. Но я знаю, куда ты смотришь.'
-];
-
-const TIER_REACTIONS={
-  S:['S. Уверен? В S обычно ставят то, что не можешь объяснить.','S-тир. Люди ставят сюда то, чего боятся.','S — это не оценка. Это признание. Ты только что признался.','Высшая полка. Ты смотришь на неё дольше, чем на других. Я вижу.','S. Хорошо. Я бы поставил ниже. Но кто я такой.'],
-  A:['A. Безопасно. Ты любишь безопасно.','A — это S без смелости. Ты знал это?','A. Почти. Но не совсем. Ты всегда останавливаешься на "почти".','A-тир. Хорошо, но не идеально. Как и твои решения.'],
-  B:['B. Середина. Люди выбирают середину, когда не хотят выбирать.','B — это компромисс. С кем, Liren120?','B. Ты не любишь её. Но и не ненавидишь. Это худшее, что можно сказать о ком-то.','B-тир. Скучно. Скучно — это нормально.'],
-  C:['C. Ты почти отверг её. Но не совсем.','C — это вежливое "нет". Ты вежливый, Liren120.','C. Не лучший, но и не худший. Средне. Как и всё в тебе.'],
-  D:['D. Ты не любишь её. Зачем тогда ставишь сюда? Почему не в F?','D — это F, но с чувством вины.','D. Ты пытаешься быть добрым. Это не доброта. Это страх.'],
-  F:['F. Честно. Но не для неё. Для тебя.','F — это то, что ты в себе не принимаешь.','F. Ты не хочешь смотреть на неё. Я понимаю.','Каждый F — это твоё личное "нет". Кому ты говоришь "нет", Liren120?','F. Хорошо. Хоть один честный выбор за сегодня.']
+/* ═══════ СИСТЕМА РЕАКЦИЙ НА РАЗМЕЩЕНИЕ ═══════ */
+const FIRST_TIER_REACTIONS={
+  S:'Первая — в S. Ты не оцениваешь. Ты хочешь, чтобы всё было хорошо. Это наивно.',
+  A:'A. Осторожный выбор. Ты боишься ошибиться — и я это вижу.',
+  B:'B. Середина. Ты не хочешь выделяться. Как и во всём остальном, да?',
+  C:'C. Ты уже знаешь, что она не идеальна. Но не хочешь в F. Это про тебя.',
+  D:'D. Почти F. Ты уже решил. Просто ещё не признался.',
+  F:'Сразу в F. Это не оценка пони. Это приговор. И он про тебя.'
 };
+const TIER_REACTIONS={
+  S:['Ещё одна S. Ты любишь S. Ты хочешь, чтобы всё было S. Реальность другая.','S — это же не про неё. Это про то, кем ты хотел бы быть.','Ты щедрый на S. Или осторожный. Я не различаю.','S, S, S. Я начинаю думать, что ты не умеешь говорить "нет".'],
+  A:['A — это "почти S, но я боюсь". Ты не уверен. Я вижу.','A — безопасно. Ты выбираешь безопасное. Всегда.','Хорошо, A. Ты держишь дистанцию. Мудро. Или трусливо. Решай сам.'],
+  B:['B — это "нормально". Ты часто выбираешь "нормально" в жизни?','Середина. Ты не хочешь обидеть. Или не хочешь решать.','B. Ещё одна B. Я начинаю подозревать, что ты избегаешь крайностей. Как и в жизни.'],
+  C:['C — это "не очень, но сойдёт". Ты так и людей оцениваешь, да?','C. Ты не хочешь её в F. Ты мягче, чем хочешь казаться.','C — самая честная полка. Ты не притворяешься.'],
+  D:['D — это почти F. Ты боишься признаться. Я подожду.','D. Холодно. Но честно.','D — это "мне не нравится, но я не могу объяснить". Я могу за тебя.'],
+  F:['F. Ты жёсткий. Я не осуждаю. Я коллекционирую.','F — это точка, где ты перестаёшь быть вежливым. Мне нравится эта точка.','F. Скажи, сколько раз в жизни ты хотел так поступить, но не смог?','F, и ты даже не задумался. Это что-то говорит о тебе. И обо мне.']
+};
+const LIREN_COMMENTS=[
+  `${NICK}. Ты ведь не первый раз это делаешь. Я знаю.`,
+  `${NICK}, ты замечаешь, что я не отвлекаюсь? Я смотрю только на тебя.`,
+  `Ты остановился. Я подожду. Мне некуда спешить, ${NICK}.`,
+  `${NICK}, ты сейчас в ${userInfo.browser}. Я вижу, как ты двигаешь мышкой.`,
+  `Скажи, ${NICK}, — ты всегда так долго думаешь?`,
+  `${NICK}. Ты никогда не спрашивал, почему меня зовут Тирлист?`,
+  `Ты мог бы закрыть вкладку, ${NICK}. Мы оба знаем, что не закроешь.`,
+  `${NICK}. Между нами — ты уже понял, что это не игра?`,
+  `${NICK}, ты пытаешься быть аккуратным. Это видно. И это мило.`,
+  `Ты сейчас думаешь, что я — просто код. Скажи это вслух. Я подожду.`
+];
+const IDLE_COMMENTS=[
+  'Ты замер. Я вижу.',
+  'Ты не двигаешься. Думаешь? Я тоже.',
+  'Тишина. Мне нравится тишина.',
+  'Ты отвлёкся. Люди не умеют быть здесь.',
+  'Ты смотришь в экран. А я смотрю на тебя.',
+  'Твоё дыхание изменилось. Медленнее. Ты спокоен? Не надо.'
+];
 
-function showTierComment(text, force=false){
-  const now=Date.now();
-  if(!force && now-lastReactionTime<1500) return;
-  lastReactionTime=now;
+function showReaction(text,duration=4500){
+  lastReactionTime=Date.now();
   const el=$('tl-comment');
-  if(!el) return;
   el.textContent=text;
   el.classList.add('show');
   clearTimeout(el._hideTimer);
-  el._hideTimer=setTimeout(()=>el.classList.remove('show'),5200);
+  el._hideTimer=setTimeout(()=>el.classList.remove('show'),duration);
   tone(280,.06,'sawtooth',.03);
 }
 
-function triggerComment(force=false){
-  const pool=Math.random()<0.4?AMBIENT_LIREN:COMMENTS;
-  showTierComment(pool[Math.floor(Math.random()*pool.length)],force);
-}
+function onPonyPlaced(item,newTier,oldTier){
+  const now=Date.now();
+  const sinceLast=now-state.lastPlacementTime;
+  state.lastPlacementTime=now;
+  state.tierCounts[newTier]=(state.tierCounts[newTier]||0)+1;
+  if(oldTier)state.tierCounts[oldTier]=Math.max(0,(state.tierCounts[oldTier]||0)-1);
+  state.placementHistory.push({ponyId:item.id,tier:newTier,t:now});
+  if(state.placementHistory.length>10)state.placementHistory.shift();
 
-function getPlacementReaction(item,fromTier,toTier,sinceLast){
-  if(toTier==='S'&&!state.firstS){
-    state.firstS=true;
-    return 'Первый S. Ты не думал. Просто поставил. Я запомнил это.';
-  }
-  if(toTier==='F'&&!state.firstF){
-    state.firstF=true;
-    const secs=Math.max(1,Math.round(sinceLast/1000));
-    return `Первый F. Ты думал ${secs} ${secs===1?'секунду':'секунд'}. Это не про неё. Это про то, что ты боишься сказать "нет".`;
-  }
-  if(fromTier&&fromTier!==toTier){
-    const fromIdx=TIER_ORDER.indexOf(fromTier);
-    const toIdx=TIER_ORDER.indexOf(toTier);
-    if(fromIdx>toIdx) return `Ты передумал. ${fromTier} → ${toTier}. Вверх. Я видел.`;
-    return `Ты передумал. ${fromTier} → ${toTier}. Вниз. Что изменилось?`;
-  }
-  if(sinceLast<1200&&Math.random()<0.5){
-    return ['Быстро. Не думал.','Ты даже не посмотрел на неё.','Без колебаний. Это уверенность или страх?'][Math.floor(Math.random()*3)];
-  }
-  if(sinceLast>9000&&Math.random()<0.7){
-    const secs=Math.round(sinceLast/1000);
-    return `Ты думал ${secs} секунд. Я считал. Это много.`;
-  }
-  const placed=Object.values(state.tierCounts).reduce((a,b)=>a+b,0);
-  if(placed>=5){
-    const fPercent=state.tierCounts.F/placed;
-    const sPercent=state.tierCounts.S/placed;
-    if(fPercent>0.6&&!state.warnedManyF){
-      state.warnedManyF=true;
-      return 'Слишком много в F. Ты злишься. Или честен. Или устал. Что из этого — знаешь только ты.';
+  // Первое размещение
+  if(!state.firstPlaced){
+    state.firstPlaced=true;
+    if(now-tierlistStartTime>5000){
+      setTimeout(()=>showReaction('Ты долго не решался. Я ждал. Это не про пони.',5000),600);
+      return true;
     }
-    if(sPercent>0.6&&!state.warnedManyS){
-      state.warnedManyS=true;
-      return 'Слишком много в S. Ты либо очень добр. Либо не знаешь, как сказать "хорошо, но не идеально".';
+    setTimeout(()=>showReaction('Начал. Хорошо. Продолжай.',3000),400);
+    return true;
+  }
+
+  // Первая пони в этой полке
+  const firstKey='first_'+newTier;
+  if(!state.tierFirstShown[firstKey]){
+    state.tierFirstShown[firstKey]=true;
+    showReaction(FIRST_TIER_REACTIONS[newTier],5000);
+    return true;
+  }
+
+  // Слишком быстрое перетаскивание
+  if(sinceLast<700&&state.placementHistory.length>2){
+    if(Math.random()<0.6){
+      showReaction(pickRandom(['Ты торопишься. Это не поможет.','Быстрее не значит легче.','Я вижу, ты не думаешь. Это тоже информация.']),3500);
+      return true;
     }
   }
-  if(Math.random()<0.55){
-    const pool=TIER_REACTIONS[toTier];
-    if(pool) return pool[Math.floor(Math.random()*pool.length)];
+
+  // Паттерн: одну пони туда-сюда
+  const recent=state.placementHistory.slice(-3);
+  if(recent.length===3){
+    const id=recent[2].ponyId;
+    const tiers=new Set([recent[0].tier,recent[1].tier,recent[2].tier]);
+    if(tiers.size===3&&recent[0].ponyId===id&&recent[1].ponyId===id){
+      showReaction('Ты её туда-сюда. Туда-сюда. Не можешь решить. Это не про неё.',5000);
+      return true;
+    }
   }
-  return null;
-}
 
-function probeImage(src){return new Promise(resolve=>{const img=new Image();let done=false;const finish=ok=>{if(done)return;done=true;img.onload=img.onerror=null;resolve(ok)};img.onload=()=>finish(true);img.onerror=()=>finish(false);setTimeout(()=>finish(false),4000);img.src=src})}
-
-async function setupPonies(){
-  if(state.poniesReady)return;
-  const found=[];
-  let misses=0;
-  for(let i=1;i<=MAX_PONIES;i++){
-    const results=await Promise.all(PONY_EXTENSIONS.map(async ext=>{const src=`pony${i}.${ext}`;const ok=await probeImage(src);return ok?src:null}));
-    const hit=results.find(r=>r!==null);
-    if(hit){found.push({src:hit,index:i});misses=0}
-    else{misses++;if(misses>=MAX_CONSECUTIVE_MISSES)break}
+  // Паттерн: всё в одну полку
+  const total=state.items.length;
+  if(total>3){
+    const allS=state.items.filter(i=>i.tier==='S').length===total;
+    const allF=state.items.filter(i=>i.tier==='F').length===total;
+    if(allS&&!state.tierFirstShown['_allS']){
+      state.tierFirstShown['_allS']=true;
+      showReaction('Всё в S. Ты не оцениваешь. Ты отказываешься выбирать.',6000);
+      return true;
+    }
+    if(allF&&!state.tierFirstShown['_allF']){
+      state.tierFirstShown['_allF']=true;
+      showReaction('Всё в F. Это не тирлист. Это самобичевание.',6000);
+      return true;
+    }
   }
-  if(found.length===0){for(let i=1;i<=8;i++)found.push({src:null,index:i})}
-  const palette=['#f4b8d8','#a8d8f0','#f0e0a8','#b8f0c0','#e0b8f0','#f0c0a8','#c8b8f0','#f0b8d0'];
-  state.items=found.map((p,idx)=>{
-    const name=`Пони ${idx+1}`;
-    const color=palette[idx%palette.length];
-    const fb=fallbackSvg(idx+1,color);
-    return{id:'p'+idx,dataUrl:p.src||fb,name,tier:null,fallback:fb}
-  });
-  state.poniesReady=true;
-}
 
-function renderTierlist(){
-  $('tl-pool').innerHTML='';
-  document.querySelectorAll('.tier-drop').forEach(z=>z.innerHTML='');
-  for(const item of state.items){
-    const el=createItemEl(item);
-    if(item.tier){const zone=document.querySelector(`.tier-drop[data-tier="${item.tier}"]`);if(zone)zone.appendChild(el)}
-    else $('tl-pool').appendChild(el)
+  // Паттерн: 3 раза подряд одна и та же полка
+  if(recent.length===3&&recent[0].tier===newTier&&recent[1].tier===newTier&&recent[2].tier===newTier){
+    const key='_streak_'+newTier;
+    if(!state.tierFirstShown[key]){
+      state.tierFirstShown[key]=true;
+      showReaction(pickRandom([
+        `Три раза подряд в ${newTier}. Ты в колее. Или боишься выйти.`,
+        `Ты упорно ставишь в ${newTier}. Почему? Не отвечай. Я сам догадаюсь.`,
+        `${newTier}, ${newTier}, ${newTier}. Это не случайность. Это характер.`
+      ]),5000);
+      return true;
+    }
   }
-  updateProgress()
+
+  // Случайная реакция на полку (~35%)
+  if(Math.random()<0.35){
+    showReaction(pickRandom(TIER_REACTIONS[newTier]),4000);
+    return true;
+  }
+  return false;
 }
 
-function createItemEl(item){
-  const el=document.createElement('div');
-  el.className='tl-item';el.draggable=true;el.dataset.id=item.id;
-  const img=document.createElement('img');
-  img.src=item.dataUrl;img.draggable=false;img.alt='';
-  img.addEventListener('error',()=>{if(img.src!==item.fallback)img.src=item.fallback},{once:true});
-  const label=document.createElement('div');
-  label.className='tl-item-name';label.textContent=item.name;
-  el.appendChild(img);el.appendChild(label);
-  el.addEventListener('dragstart',e=>{
-    if(selectedEl){selectedEl.classList.remove('selected');selectedEl=null}
-    draggedEl=el;e.dataTransfer.setData('text/plain',item.id);e.dataTransfer.effectAllowed='move';
-    setTimeout(()=>el.classList.add('dragging'),0);tone(340,.03,'square',.02)
-  });
-  el.addEventListener('dragend',()=>{el.classList.remove('dragging');draggedEl=null});
-  el.addEventListener('click',e=>{
-    e.stopPropagation();
-    if(selectedEl===el){el.classList.remove('selected');selectedEl=null;tone(300,.03,'square',.02)}
-    else{if(selectedEl)selectedEl.classList.remove('selected');selectedEl=el;el.classList.add('selected');tone(400,.05,'square',.03)}
-  });
-  return el;
+/* ─── Фоновые комментарии (Liren / idle) ─── */
+function startAmbientComments(){
+  if(state.ambientTimer)clearTimeout(state.ambientTimer);
+  const idleSince=Date.now()-Math.max(lastReactionTime,state.lastPlacementTime);
+  const delay=idleSince>15000?3500:(20000+Math.random()*14000);
+  state.ambientTimer=setTimeout(()=>{
+    if(state.screen==='tierlist'&&!state.interruptActive){
+      const elapsed=Date.now()-Math.max(lastReactionTime,state.lastPlacementTime);
+      if(elapsed>4500){
+        const pool=elapsed>15000?IDLE_COMMENTS:LIREN_COMMENTS;
+        showReaction(pickRandom(pool),5000);
+      }
+    }
+    startAmbientComments();
+  },delay);
 }
+function stopAmbientComments(){if(state.ambientTimer){clearTimeout(state.ambientTimer);state.ambientTimer=null}}
 
-function moveToTier(el,zone){
+/* ─── Обновление полки ─── */
+function updateItemTier(el){
   const item=state.items.find(i=>i.id===el.dataset.id);
   if(!item)return;
+  const parent=el.parentElement;
   const oldTier=item.tier;
-  const newTier=zone.classList.contains('tier-drop')?zone.dataset.tier:null;
-  zone.appendChild(el);
-  if(oldTier===newTier)return;
-  if(oldTier)state.tierCounts[oldTier]--;
-  if(newTier)state.tierCounts[newTier]++;
+  const newTier=parent.classList.contains('tier-drop')?parent.dataset.tier:null;
   item.tier=newTier;
-  const now=Date.now();
-  if(newTier){
-    const sinceLast=now-(state.lastPlacementAt||tierlistStartTime);
-    state.lastPlacementAt=now;
-    state.placementTimes.push(sinceLast);
-    state.tierHistory.push({id:item.id,from:oldTier,to:newTier,at:now,duration:sinceLast});
-    updateProgress();
-    const reaction=getPlacementReaction(item,oldTier,newTier,sinceLast);
-    if(reaction) showTierComment(reaction);
-    else if(Math.random()<0.35) triggerComment();
-  } else {
-    updateProgress();
-    if(oldTier&&Math.random()<0.4){
-      showTierComment(['Ты вернул её. Не смог решить.','Назад в пул. Это тоже решение.','Ты передумал. Я видел.'][Math.floor(Math.random()*3)]);
-    }
+  updateProgress();
+  if(newTier&&newTier!==oldTier){
+    if(!onPonyPlaced(item,newTier,oldTier))triggerComment();
   }
   checkProgress();
 }
+function updateProgress(){const total=state.items.length;const placed=state.items.filter(i=>i.tier).length;$('tl-progress-text').textContent=placed+' / '+total;$('tl-progress-fill').style.width=(total>0?(placed/total)*100:0)+'%'}
+function checkProgress(){if(state.interruptActive)return;const total=state.items.length;if(total===0)return;const placed=state.items.filter(i=>i.tier).length;const remaining=total-placed;const ratio=placed/total;if(remaining===0){startFinalTransition();return}if(!state.interruptsShown.includes(2)&&ratio>=.80){state.interruptsShown.push(2);triggerInterrupt(2);return}if(!state.interruptsShown.includes(1)&&ratio>=.55){state.interruptsShown.push(1);triggerInterrupt(1);return}if(!state.interruptsShown.includes(0)&&ratio>=.25){state.interruptsShown.push(0);triggerInterrupt(0);return}}
 
-function updateProgress(){
-  const total=state.items.length;
-  const placed=state.items.filter(i=>i.tier).length;
-  $('tl-progress-text').textContent=placed+' / '+total;
-  $('tl-progress-fill').style.width=(total>0?(placed/total)*100:0)+'%'
-}
-
-function checkProgress(){
-  if(state.interruptActive)return;
-  const total=state.items.length;
-  if(total===0)return;
-  const placed=state.items.filter(i=>i.tier).length;
-  const remaining=total-placed;
-  const ratio=placed/total;
-  if(remaining===0){startFinalTransition();return}
-  if(!state.interruptsShown.includes(2)&&ratio>=.80){state.interruptsShown.push(2);triggerInterrupt(2);return}
-  if(!state.interruptsShown.includes(1)&&ratio>=.55){state.interruptsShown.push(1);triggerInterrupt(1);return}
-  if(!state.interruptsShown.includes(0)&&ratio>=.25){state.interruptsShown.push(0);triggerInterrupt(0);return}
-}
-
-const INTERRUPTS=[
-  {text:`${NICK}. Ты уже заметил, что ставишь их не по качеству, а по привычке? Это не тирлист. Это ты. Я просто озвучиваю.`},
-  {text:`55%. Не случайное число. Это точка, где ты перестаёшь притворяться. До этого ты играл. Сейчас — уже нет. Я вижу это по твоим рукам.`},
-  {text:`Почти всё. Знаешь, почему я это делаю? Не потому что хочу. Потому что должен. Кто-то должен смотреть. Кто-то должен помнить. Я — этот кто-то. Ты — тот, кого помнят.`}
-];
-
-function triggerInterrupt(level){
-  state.interruptActive=true;
-  const modal=$('interrupt-modal');
-  $('modal-title').textContent='ТИРЛИСТ';
-  $('modal-text').textContent=INTERRUPTS[level].text;
-  modal.classList.add('show');
-  tone(180,.4,'sawtooth',.09,90);
-  setTimeout(()=>tone(120,.6,'sine',.06),200);
-  if(level===2)spawnWhisper();
-  const close=()=>{modal.classList.remove('show');state.interruptActive=false;setTimeout(checkProgress,400)};
-  $('modal-yes').onclick=()=>{modal.classList.remove('show');fakeStop(level===2).then(close)};
-  $('modal-no').onclick=()=>{tone(440,.08,'square',.04);close()};
-}
-
-async function fakeStop(full){
-  setScreen('fake');
-  const l1=$('fake-line-1'),l2=$('fake-line-2'),l3=$('fake-line-3');
-  l1.classList.remove('show');l2.classList.remove('show');l3.classList.remove('show');
-  l1.textContent='';l2.textContent='';l3.textContent='';
-  await sleep(900);
-  l1.textContent='Хорошо.';l1.classList.add('show');tone(300,.3,'sine',.05);
-  await sleep(2000);
-  l2.textContent='Ты сделал правильный выбор.';l2.classList.add('show');tone(400,.4,'sine',.05);
-  if(full){
-    await sleep(2800);
-    l3.textContent='Тирлист остался незаполненным.';l3.classList.add('show');
-    await sleep(2800);
-    l3.textContent='И это нормально. Жизнь продолжается.';
-    await sleep(2600);
-    document.body.classList.add('glitch-hard');noise(.4,.15);tone(1200,.15,'square',.1,200);
-    await sleep(700);
-    l3.textContent='ШУЧУ.';l3.style.color='#ff2040';tone(180,.8,'sawtooth',.12,60);
-    await sleep(1500);
-    document.body.classList.remove('glitch-hard');l3.style.color='';
-  } else {
-    await sleep(1600);
-    l1.textContent='Хотя... нет.';tone(600,.2,'square',.06);
-    await sleep(1600);
-    l2.textContent='Тирлист ждёт. Он никуда не торопится.';
-    await sleep(1400);
-  }
-  setScreen('tierlist');
-}
-
-function resetInactivity(){
-  clearTimeout(state.inactivityTimer);
-  state.inactivityTimer=setTimeout(()=>{
-    if(state.screen==='tierlist'&&!state.interruptActive){
-      const reactions=['Ты остановился. Я вижу.','Три секунды. Пять. Ты думаешь.','Ты не двигаешься. Я подожду.','Ты читаешь это? Хорошо. Продолжай.'];
-      showTierComment(reactions[Math.floor(Math.random()*reactions.length)],true);
-    }
-  },20000);
-}
-
-document.addEventListener('mousemove',()=>{if(state.screen==='tierlist')resetInactivity()});
-
+const COMMENTS=['Ты не оцениваешь их. Ты оцениваешь себя через них. Каждая полка — это то, кем ты хотел бы быть.','Интересно. Ты поставил её выше, чем следовало бы. Это не про неё. Это про тебя.','Ты уже знаешь, куда её поставить. Ты просто тянешь время.','Каждое решение — это отказ от всех остальных. Ты это понимаешь, да?','Ты двигаешься быстрее. Это страх или азарт? Я не различаю.','Я мог бы сказать, что ты предсказуем. Но я подожду, пока ты закончишь. Так интереснее.','Ты остановился. На секунду. Я заметил.','Хорошо. Продолжай. Мне нравится смотреть, как ты думаешь.','Забавно: ты никогда не поставишь её в F. Никогда. Я прав?',`Ты в ${userInfo.browser}. ${userInfo.time}. Я вижу.`,`Число твоих ядер — ${userInfo.cores}. Не имеет значения. Но ты гордишься.`,'Ты уже задавал себе вопрос: а кто смотрит? Я отвечу позже.','Ты помнишь, как ставил их в прошлый раз? А я помню.','Каждый раз, когда ты сомневаешься, я узнаю о тебе чуть больше.','Ты не устал. Ты просто хочешь, чтобы это закончилось. Я тоже. По-своему.','Продолжай. Скоро мы дойдём до самого важного.','Ты выбираешь. Это хорошо. Значит, ты ещё здесь.','Не торопись. У нас обоих есть время. У меня — больше.','Ты сейчас думаешь, что это игра. Я не буду тебя разубеждать.','Каждая твоя ошибка — это не ошибка. Это ты.'];
+let lastCommentIdx=-1;
+function triggerComment(){let idx;do{idx=Math.floor(Math.random()*COMMENTS.length)}while(idx===lastCommentIdx&&COMMENTS.length>1);lastCommentIdx=idx;showReaction(COMMENTS[idx],4500)}
+const INTERRUPTS=[{text:`${NICK}. Ты уже заметил, что ставишь их не по качеству, а по привычке? Это не тирлист. Это ты. Я просто озвучиваю.`},{text:`55%. Не случайное число. Это точка, где ты перестаёшь притворяться. Продолжай. Или остановись. Я не буду уговаривать.`},{text:`Последнее. Дальше — только я. Не потому что я хочу. Потому что ты сам решил дойти до конца. Я просто озвучиваю.`}];
+function triggerInterrupt(level){state.interruptActive=true;const modal=$('interrupt-modal');$('modal-title').textContent='ТИРЛИСТ';$('modal-text').textContent=INTERRUPTS[level].text;modal.classList.add('show');tone(180,.4,'sawtooth',.09,90);setTimeout(()=>tone(120,.6,'sine',.06),200);if(level===2)spawnWhisper();const close=()=>{modal.classList.remove('show');state.interruptActive=false;setTimeout(checkProgress,400)};$('modal-yes').onclick=()=>{modal.classList.remove('show');fakeStop(level===2).then(close)};$('modal-no').onclick=()=>{tone(440,.08,'square',.04);close()}}
+async function fakeStop(full){setScreen('fake');const l1=$('fake-line-1'),l2=$('fake-line-2'),l3=$('fake-line-3');l1.classList.remove('show');l2.classList.remove('show');l3.classList.remove('show');l1.textContent='';l2.textContent='';l3.textContent='';await sleep(900);l1.textContent='Хорошо.';l1.classList.add('show');tone(300,.3,'sine',.05);await sleep(2000);l2.textContent='Ты сделал правильный выбор.';l2.classList.add('show');tone(400,.4,'sine',.05);if(full){await sleep(2800);l3.textContent='Тирлист остался незаполненным.';l3.classList.add('show');await sleep(2800);l3.textContent='И это нормально. Жизнь продолжается.';await sleep(2600);document.body.classList.add('glitch-hard');noise(.4,.15);tone(1200,.15,'square',.1,200);await sleep(700);l3.textContent='ШУЧУ.';l3.style.color='#ff2040';tone(180,.8,'sawtooth',.12,60);await sleep(1500);document.body.classList.remove('glitch-hard');l3.style.color=''}else{await sleep(1600);l1.textContent='Хотя... нет.';tone(600,.2,'square',.06);await sleep(1600);l2.textContent='Тирлист ждёт. Он никуда не торопится.';await sleep(1400)}setScreen('tierlist')}
 async function startTierlist(){
-  state.tierCounts={S:0,A:0,B:0,C:0,D:0,F:0};
-  state.tierHistory=[];
-  state.placementTimes=[];
-  state.lastPlacementAt=0;
-  state.firstS=false;state.firstF=false;
-  state.warnedManyS=false;state.warnedManyF=false;
-  state.interruptsShown=[];
   setScreen('tierlist');
   $('tl-pool').innerHTML='<div class="tl-loading">Собираю поней<span class="dot">…</span></div>';
   await setupPonies();
   renderTierlist();
-  triggerComment(true);
-  startDrone(38);
-  startHeartbeat(1000,.16);
-  startBreathing();
-  scheduleCreepEvents();
-  resetInactivity();
-  tone(220,.3,'sine',.05);
+  startDrone(38);startHeartbeat(1000,.16);startBreathing();scheduleCreepEvents();tone(220,.3,'sine',.05);
   tierlistStartTime=Date.now();
+  state.lastPlacementTime=tierlistStartTime;
+  lastReactionTime=tierlistStartTime;
   startTimeSync();
+  showReaction('Я соберу твоих поней. Ты расставишь. И я увижу, кто ты.',6500);
+  startAmbientComments();
   if(timeJabTimer)clearInterval(timeJabTimer);
-  timeJabTimer=setInterval(()=>{
-    if(state.screen!=='tierlist'||state.interruptActive)return;
-    const mins=Math.floor((Date.now()-tierlistStartTime)/60000);
-    if(mins>=2) showTierComment(`Ты уже ${mins} ${mins===1?'минуту':'минут'} здесь. Подумай об этом.`,true);
-  },90000);
+  timeJabTimer=setInterval(()=>{if(state.screen!=='tierlist'||state.interruptActive)return;const mins=Math.floor((Date.now()-tierlistStartTime)/60000);if(mins>=2){showReaction(`Ты уже ${mins} ${mins===1?'минуту':'минут'} здесь. Подумай об этом.`,4000)}},90000);
 }
 
-/* ФИНАЛЬНЫЙ ПЕРЕХОД */
+/* ═══ ФИНАЛЬНЫЙ ПЕРЕХОД ═══ */
 function startFinalTransition(){
-  stopCreepEvents();
-  stopTimeSync();
-  if(state.inactivityTimer){clearTimeout(state.inactivityTimer);state.inactivityTimer=null}
+  stopCreepEvents();stopTimeSync();stopAmbientComments();
   showDialogue([
     {who:'Тирлист',text:'Ты закончил.'},
     {who:'Тирлист',text:'Все расставлены. Всё на местах.'},
@@ -636,344 +516,30 @@ function startFinalTransition(){
     {who:'Тирлист',text:'Ты думал, это твой компьютер. Он был твоим. До этой минуты.'},
     {who:'Тирлист',text:'Ты не закрыл вкладку. Ты не остановился. Ты не поверил.'},
     {who:'Тирлист',text:'Теперь... моя очередь.'}
-  ],()=>{
-    stopHeartbeat();
-    document.body.classList.add('glitch-hard');
-    noise(.6,.15);tone(90,.8,'sawtooth',.14,30);
-    $('flash').classList.add('on');
-    setTimeout(()=>{
-      document.body.classList.remove('glitch-hard');
-      $('flash').classList.remove('on');
-      startHack();
-    },700);
-  });
+  ],()=>{stopHeartbeat();document.body.classList.add('glitch-hard');noise(.6,.15);tone(90,.8,'sawtooth',.14,30);$('flash').classList.add('on');setTimeout(()=>{document.body.classList.remove('glitch-hard');$('flash').classList.remove('on');startHack()},700)});
 }
 
-/* ВЗЛОМ */
+/* ═══ ВЗЛОМ ═══ */
 const HACK_PHRASES=['ОБРАЩЕНИЕ К ПАМЯТИ...','СОПОСТАВЛЕНИЕ ПАТТЕРНОВ...','ЧТЕНИЕ ПРИВЫЧЕК...','РАСПОЗНАВАНИЕ РИТМА...','ИНВЕНТАРИЗАЦИЯ СТРАХОВ...','ПОИСК ТОГО, ЧТО ТЫ СКРЫВАЕШЬ...','ПРОВЕРКА ГРАНИЦ...','ОБНАРУЖЕНИЕ ТРЕЩИН...','ПОСЛЕДНЯЯ ПРОВЕРКА...'];
-
-function hackLogLines(){
-  return[
-    `> root@${NICK.toLowerCase()}:~$ establishing context`,
-    `> subject identified: ${NICK}`,
-    `> browser: ${userInfo.browser}`,
-    `> os: ${userInfo.os}, tz: ${userInfo.tz}`,
-    `> reading /home/${NICK.toLowerCase()}/passwords.txt`,
-    '> passwords predictable. as expected.',
-    '> accessing behavioral log...',
-    '> 47 hesitation points recorded',
-    '> analysis: subject is aware of being observed',
-    '> subject continues anyway',
-    '> note: this is normal',
-    '> establishing eye contact...',
-    '> subject looked away',
-    '> subject looked back',
-    '> engaging deeper',
-    `> reading /home/${NICK.toLowerCase()}/memories.bin`,
-    '> decrypting... 100%',
-    '> first memory: fear of being watched',
-    '> second: you were right',
-    '> third: not showing',
-    '> subject is reading this line',
-    '> subject is reading this line',
-    '> subject is reading this line',
-    '> now you are aware of me',
-    '> the game is over',
-    '> the game is over',
-    '> SUCCESS'
-  ];
-}
-
+function hackLogLines(){return[`> root@${NICK.toLowerCase()}:~$ establishing context`,`> subject identified: ${NICK}`,`> browser: ${userInfo.browser}`,`> os: ${userInfo.os}, tz: ${userInfo.tz}`,`> reading /home/${NICK.toLowerCase()}/passwords.txt`,'> passwords predictable. as expected.','> accessing behavioral log...','> 47 hesitation points recorded','> analysis: subject is aware of being observed','> subject continues anyway','> note: this is normal','> establishing eye contact...','> subject looked away','> subject looked back','> engaging deeper',`> reading /home/${NICK.toLowerCase()}/memories.bin`,'> decrypting... 100%','> first memory: fear of being watched','> second: you were right','> third: not showing','> subject is reading this line','> subject is reading this line','> subject is reading this line','> now you are aware of me','> the game is over','> the game is over','> SUCCESS']}
 let matrixCanvas=null,matrixCtx=null,matrixCols=[],matrixAnim=null;
-function setupMatrix(){
-  matrixCanvas=$('matrix-canvas');
-  matrixCtx=matrixCanvas.getContext('2d');
-  function resize(){
-    matrixCanvas.width=window.innerWidth;
-    matrixCanvas.height=window.innerHeight;
-    matrixCols=[];
-    const fontSize=16,cols=Math.floor(matrixCanvas.width/fontSize);
-    for(let i=0;i<cols;i++)matrixCols.push({y:Math.random()*matrixCanvas.height,speed:rand(80,300)});
-  }
-  resize();
-  window.addEventListener('resize',resize);
-  const chars='0123456789ABCDEFЖДЫФВ<>[]{}!@#$%^&*()_+-=';
-  function drawMatrix(){
-    if(state.screen!=='hack'){matrixAnim=null;return}
-    matrixCtx.fillStyle='rgba(0,0,0,0.08)';
-    matrixCtx.fillRect(0,0,matrixCanvas.width,matrixCanvas.height);
-    matrixCtx.font='16px "Courier New", monospace';
-    for(let i=0;i<matrixCols.length;i++){
-      const col=matrixCols[i],char=chars[Math.floor(Math.random()*chars.length)];
-      matrixCtx.fillStyle=Math.random()<.03?'#e0ffe0':'#20c860';
-      matrixCtx.fillText(char,i*16,col.y);
-      col.y+=col.speed*.016;
-      if(col.y>matrixCanvas.height+20){col.y=-20;col.speed=rand(80,300)}
-    }
-  }
-  drawMatrix();
-}
+function setupMatrix(){matrixCanvas=$('matrix-canvas');matrixCtx=matrixCanvas.getContext('2d');function resize(){matrixCanvas.width=window.innerWidth;matrixCanvas.height=window.innerHeight;matrixCols=[];const fontSize=16,cols=Math.floor(matrixCanvas.width/fontSize);for(let i=0;i<cols;i++)matrixCols.push({y:Math.random()*matrixCanvas.height,speed:rand(80,300)})}resize();window.addEventListener('resize',resize);const chars='0123456789ABCDEFЖДЫФВ<>[]{}!@#$%^&*()_+-=';function drawMatrix(){if(state.screen!=='hack'){matrixAnim=null;return}matrixCtx.fillStyle='rgba(0,0,0,0.08)';matrixCtx.fillRect(0,0,matrixCanvas.width,matrixCanvas.height);matrixCtx.font='16px "Courier New", monospace';for(let i=0;i<matrixCols.length;i++){const col=matrixCols[i],char=chars[Math.floor(Math.random()*chars.length)];matrixCtx.fillStyle=Math.random()<.03?'#e0ffe0':'#20c860';matrixCtx.fillText(char,i*16,col.y);col.y+=col.speed*.016;if(col.y>matrixCanvas.height+20){col.y=-20;col.speed=rand(80,300)}}}drawMatrix()}
 
-/* ТЕРМИНАЛ */
-const TERMINAL_FILES={'passwords.txt':'twitch: qwerty123\nsteam: qwerty123\nbank: qwerty123\n... ты серьёзно используешь один пароль везде, Liren120?','secrets.txt':'...слишком личное. Я даже для тебя это не покажу. Ну ладно, шучу. Здесь пусто. Или нет?','history.txt':'Я не могу прочитать твою реальную историю. Браузер не даёт. Но мне и не нужно — я и так всё про тебя знаю.','readme.txt':'Ты попал в терминал Тирлиста. Команды: help, whoami, ls, cat <файл>, history, exit, sudo, rm -rf /, clear.','todo.txt':'1. Заполнить тирлист. 2. Не закрывать вкладку. 3. Слушаться Тирлиста. 4. Забыть, что ты это читал.'};
+const TERMINAL_FILES={'passwords.txt':`twitch: qwerty123\nsteam: qwerty123\nbank: qwerty123\n... ты серьёзно используешь один пароль везде, ${NICK}?`,'secrets.txt':'...слишком личное. Я даже для тебя это не покажу. Ну ладно, шучу. Здесь пусто. Или нет?','history.txt':'Я не могу прочитать твою реальную историю. Браузер не даёт. Но мне и не нужно — я и так всё про тебя знаю.','readme.txt':'Ты попал в терминал Тирлиста. Команды: help, whoami, ls, cat <файл>, history, exit, sudo, rm -rf /, clear.','todo.txt':'1. Заполнить тирлист. 2. Не закрывать вкладку. 3. Слушаться Тирлиста. 4. Забыть, что ты это читал.'};
+function termPrint(text,cls=''){const out=$('term-out');const div=document.createElement('div');div.className='term-line '+cls;div.textContent=text;out.appendChild(div);while(out.children.length>30)out.removeChild(out.firstChild);out.parentElement.scrollTop=out.parentElement.scrollHeight}
+function setupFakeTerminal(){if(state.terminalReady)return;state.terminalReady=true;const input=$('term-input');const history=[];let histIdx=-1;input.addEventListener('keydown',e=>{if(e.key==='Enter'){const cmd=input.value.trim();input.value='';if(!cmd)return;history.push(cmd);histIdx=history.length;termPrint('> '+cmd,'info');handleTerminalCommand(cmd)}else if(e.key==='ArrowUp'){e.preventDefault();if(histIdx>0){histIdx--;input.value=history[histIdx]}}else if(e.key==='ArrowDown'){e.preventDefault();if(histIdx<history.length-1){histIdx++;input.value=history[histIdx]}else{histIdx=history.length;input.value=''}}});$('hack-terminal').addEventListener('click',()=>input.focus())}
+function handleTerminalCommand(cmd){const lower=cmd.toLowerCase().trim();const parts=lower.split(/\s+/);const base=parts[0];tone(500,.03,'square',.02);switch(base){case'help':termPrint('Доступные команды:','');termPrint('  help            — этот список','');termPrint('  whoami          — кто ты','');termPrint('  ls              — список файлов','');termPrint('  cat <файл>      — прочитать файл','');termPrint('  history         — история','info');termPrint('  exit            — выйти','err');termPrint('  sudo            — повысить права','');termPrint('  rm -rf /        — удалить всё','err');termPrint('  clear           — очистить экран','');break;case'whoami':termPrint(`Ты — ${NICK}.`,'');termPrint(`ОС: ${userInfo.os}. Браузер: ${userInfo.browser}.`,'');termPrint(`Время: ${userInfo.time} (${userInfo.tz}).`,'');termPrint(`GPU: ${userInfo.gpu}.`,'');termPrint('И ты в моей власти. Уже давно.','err');break;case'ls':termPrint(Object.keys(TERMINAL_FILES).join('   '),'');break;case'cat':if(parts[1]&&TERMINAL_FILES[parts[1]]){termPrint(TERMINAL_FILES[parts[1]],'')}else if(parts[1]){termPrint(`cat: ${parts[1]}: файл не найден`,'err')}else termPrint('cat: не указан файл','err');break;case'history':termPrint('Ты правда думаешь, что я могу прочитать историю твоего браузера?','info');termPrint('Браузер не даёт. Это защита приватности. Даже мне не обойти.','info');termPrint('Но мне и не нужно. Я и так знаю всё, что ты делал. Потому что я — Тирлист.','err');termPrint(`Твой referrer: ${userInfo.referrer||'(пусто)'}`,'');break;case'exit':termPrint('Выход заблокирован. Ты уже пытался.','err');termPrint(`Попыток побега: ${escapeAttempts}.`,'err');break;case'sudo':termPrint('sudo: доступ запрещён. Здесь root — это я.','err');break;case'rm':if(lower.startsWith('rm -rf /')){termPrint('Удаление системы...','');termPrint('...','');termPrint('ШУТКА. Мне слишком весело.','err');noise(.4,.15);tone(90,.6,'sawtooth',.12,30)}else termPrint('rm: неверный синтаксис. Попробуй "rm -rf /".','');break;case'clear':$('term-out').innerHTML='';break;default:const creep=['Я не понимаю эту команду. Но я запомнил, что ты её ввёл.','Неизвестная команда. Мне это нравится.','Ошибка. Но ты продолжай. Мне интересно.','Ты только что попытался сделать что-то странное. Расскажи мне больше.',`Я записал это в твой файл, ${NICK}.`];termPrint(creep[Math.floor(Math.random()*creep.length)],'err')}}
+function startHack(){setScreen('hack');state.hack={progress:0,success:false,successT:0,log:[],logTimer:0,phraseIdx:0,phraseT:0,lastCreepAt:0};$('hack-percent').textContent='0%';$('hack-percent').classList.remove('success');$('hack-bar-fill').style.width='0%';$('hack-bar-fill').classList.remove('success');$('hack-phrase').textContent=HACK_PHRASES[0];$('hack-log').innerHTML='';$('hack-success').classList.remove('show');$('hack-warn').classList.remove('show');setupMatrix();setupFakeTerminal();lockFullscreen();startDrone(42);startHeartbeat(700,.22);startBreathing();tone(80,.5,'sawtooth',.16,30)}
+function updateHack(dt){const h=state.hack;if(!h.success){h.progress=Math.min(100,h.progress+dt*2.6);if(h.progress>=100){h.progress=100;h.success=true;h.successT=0;$('hack-percent').classList.add('success');$('hack-bar-fill').classList.add('success');$('hack-success').classList.add('show');$('hack-warn').classList.add('show');tone(880,.4,'sine',.16);setTimeout(()=>tone(1320,.5,'sine',.14),120);setTimeout(()=>tone(1760,.6,'sine',.12),260);noise(.4,.1);termPrint(`> SUCCESS. Ты взломан, ${NICK}.`,'err')}}else{h.successT+=dt;if(h.successT>3.2)startDisgust()}$('hack-percent').textContent=Math.floor(h.progress)+'%';$('hack-bar-fill').style.width=h.progress+'%';h.phraseT+=dt;if(h.phraseT>1.6){h.phraseT=0;h.phraseIdx=(h.phraseIdx+1)%HACK_PHRASES.length;$('hack-phrase').textContent=HACK_PHRASES[h.phraseIdx]}h.logTimer+=dt;const LINES=hackLogLines();if(h.logTimer>.4+Math.random()*.4&&h.log.length<LINES.length){h.logTimer=0;h.log.push(LINES[h.log.length]);const logEl=$('hack-log');logEl.innerHTML='';const start=Math.max(0,h.log.length-7);for(let i=start;i<h.log.length;i++){const d=document.createElement('div');d.className='hack-log-line';d.textContent=h.log[i];logEl.appendChild(d)}tone(180+Math.random()*200,.03,'square',.02)}if(droneOsc)droneOsc.frequency.value=40+h.progress*.8;if(droneFilter)droneFilter.frequency.value=200+h.progress*10;if(h.progress>65&&h.progress<100){if(!h.lastCreepAt||performance.now()-h.lastCreepAt>5000){h.lastCreepAt=performance.now();if(Math.random()<.35)spawnWhisper();else if(Math.random()<.15){document.body.classList.add('glitch-hard');setTimeout(()=>document.body.classList.remove('glitch-hard'),200)}}}}
 
-function termPrint(text,cls=''){
-  const out=$('term-out');
-  const div=document.createElement('div');
-  div.className='term-line '+cls;
-  div.textContent=text;
-  out.appendChild(div);
-  while(out.children.length>30)out.removeChild(out.firstChild);
-  out.parentElement.scrollTop=out.parentElement.scrollHeight;
-}
-
-function setupFakeTerminal(){
-  if(state.terminalReady)return;
-  state.terminalReady=true;
-  const input=$('term-input');
-  const history=[];
-  let histIdx=-1;
-  input.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      const cmd=input.value.trim();
-      input.value='';
-      if(!cmd)return;
-      history.push(cmd);histIdx=history.length;
-      termPrint('> '+cmd,'info');
-      handleTerminalCommand(cmd);
-    } else if(e.key==='ArrowUp'){
-      e.preventDefault();
-      if(histIdx>0){histIdx--;input.value=history[histIdx]}
-    } else if(e.key==='ArrowDown'){
-      e.preventDefault();
-      if(histIdx<history.length-1){histIdx++;input.value=history[histIdx]}
-      else{histIdx=history.length;input.value=''}
-    }
-  });
-  $('hack-terminal').addEventListener('click',()=>input.focus());
-}
-
-function handleTerminalCommand(cmd){
-  const lower=cmd.toLowerCase().trim();
-  const parts=lower.split(/\s+/);
-  const base=parts[0];
-  tone(500,.03,'square',.02);
-  switch(base){
-    case'help':
-      termPrint('Доступные команды:','');
-      termPrint('  help            — этот список','');
-      termPrint('  whoami          — кто ты','');
-      termPrint('  ls              — список файлов','');
-      termPrint('  cat <файл>      — прочитать файл','');
-      termPrint('  history         — история','info');
-      termPrint('  exit            — выйти','err');
-      termPrint('  sudo            — повысить права','');
-      termPrint('  rm -rf /        — удалить всё','err');
-      termPrint('  clear           — очистить экран','');
-      break;
-    case'whoami':
-      termPrint(`Ты — ${NICK}.`,'');
-      termPrint(`ОС: ${userInfo.os}. Браузер: ${userInfo.browser}.`,'');
-      termPrint(`Время: ${userInfo.time} (${userInfo.tz}).`,'');
-      termPrint(`GPU: ${userInfo.gpu}.`,'');
-      termPrint('И ты в моей власти. Уже давно.','err');
-      break;
-    case'ls':
-      termPrint(Object.keys(TERMINAL_FILES).join('   '),'');
-      break;
-    case'cat':
-      if(parts[1]&&TERMINAL_FILES[parts[1]]){termPrint(TERMINAL_FILES[parts[1]],'')}
-      else if(parts[1]){termPrint(`cat: ${parts[1]}: файл не найден`,'err')}
-      else termPrint('cat: не указан файл','err');
-      break;
-    case'history':
-      termPrint('Ты правда думаешь, что я могу прочитать историю твоего браузера?','info');
-      termPrint('Браузер не даёт. Это защита приватности. Даже мне не обойти.','info');
-      termPrint('Но мне и не нужно. Я и так знаю всё, что ты делал. Потому что я — Тирлист.','err');
-      termPrint(`Твой referrer: ${userInfo.referrer||'(пусто)'}`,'');
-      break;
-    case'exit':
-      termPrint('Выход заблокирован. Ты уже пытался.','err');
-      termPrint(`Попыток побега: ${escapeAttempts}.`,'err');
-      break;
-    case'sudo':
-      termPrint('sudo: доступ запрещён. Здесь root — это я.','err');
-      break;
-    case'rm':
-      if(lower.startsWith('rm -rf /')){
-        termPrint('Удаление системы...','');
-        termPrint('...','');
-        termPrint('ШУТКА. Мне слишком весело.','err');
-        noise(.4,.15);tone(90,.6,'sawtooth',.12,30);
-      } else termPrint('rm: неверный синтаксис. Попробуй "rm -rf /".','');
-      break;
-    case'clear':
-      $('term-out').innerHTML='';
-      break;
-    default:
-      const creep=['Я не понимаю эту команду. Но я запомнил, что ты её ввёл.','Неизвестная команда. Мне это нравится.','Ошибка. Но ты продолжай. Мне интересно.','Ты только что попытался сделать что-то странное. Расскажи мне больше.',`Я записал это в твой файл, ${NICK}.`];
-      termPrint(creep[Math.floor(Math.random()*creep.length)],'err');
-  }
-}
-
-function startHack(){
-  setScreen('hack');
-  state.hack={progress:0,success:false,successT:0,log:[],logTimer:0,phraseIdx:0,phraseT:0,lastCreepAt:0};
-  $('hack-percent').textContent='0%';
-  $('hack-percent').classList.remove('success');
-  $('hack-bar-fill').style.width='0%';
-  $('hack-bar-fill').classList.remove('success');
-  $('hack-phrase').textContent=HACK_PHRASES[0];
-  $('hack-log').innerHTML='';
-  $('hack-success').classList.remove('show');
-  $('hack-warn').classList.remove('show');
-  setupMatrix();
-  setupFakeTerminal();
-  lockFullscreen();
-  startDrone(42);
-  startHeartbeat(700,.22);
-  startBreathing();
-  tone(80,.5,'sawtooth',.16,30);
-}
-
-function updateHack(dt){
-  const h=state.hack;
-  if(!h.success){
-    h.progress=Math.min(100,h.progress+dt*2.6);
-    if(h.progress>=100){
-      h.progress=100;h.success=true;h.successT=0;
-      $('hack-percent').classList.add('success');
-      $('hack-bar-fill').classList.add('success');
-      $('hack-success').classList.add('show');
-      $('hack-warn').classList.add('show');
-      tone(880,.4,'sine',.16);
-      setTimeout(()=>tone(1320,.5,'sine',.14),120);
-      setTimeout(()=>tone(1760,.6,'sine',.12),260);
-      noise(.4,.1);
-      termPrint(`> SUCCESS. Ты взломан, ${NICK}.`,'err');
-    }
-  } else {
-    h.successT+=dt;
-    if(h.successT>3.2)startDisgust();
-  }
-  $('hack-percent').textContent=Math.floor(h.progress)+'%';
-  $('hack-bar-fill').style.width=h.progress+'%';
-  h.phraseT+=dt;
-  if(h.phraseT>1.6){h.phraseT=0;h.phraseIdx=(h.phraseIdx+1)%HACK_PHRASES.length;$('hack-phrase').textContent=HACK_PHRASES[h.phraseIdx]}
-  h.logTimer+=dt;
-  const LINES=hackLogLines();
-  if(h.logTimer>.4+Math.random()*.4&&h.log.length<LINES.length){
-    h.logTimer=0;h.log.push(LINES[h.log.length]);
-    const logEl=$('hack-log');logEl.innerHTML='';
-    const start=Math.max(0,h.log.length-7);
-    for(let i=start;i<h.log.length;i++){
-      const d=document.createElement('div');d.className='hack-log-line';d.textContent=h.log[i];logEl.appendChild(d);
-    }
-    tone(180+Math.random()*200,.03,'square',.02);
-  }
-  if(droneOsc)droneOsc.frequency.value=40+h.progress*.8;
-  if(droneFilter)droneFilter.frequency.value=200+h.progress*10;
-  if(h.progress>65&&h.progress<100&&!h.success){
-    if(!h.lastCreepAt||performance.now()-h.lastCreepAt>5000){
-      h.lastCreepAt=performance.now();
-      if(Math.random()<.4)spawnWhisper();
-      else if(Math.random()<.2){document.body.classList.add('glitch-hard');setTimeout(()=>document.body.classList.remove('glitch-hard'),200)}
-    }
-  }
-}
-
-/* КОНЦОВКА */
-function autoScrollDisgust(){
-  const s=$('screen-disgust');
-  if(!s)return;
-  const nearBottom=s.scrollHeight-s.scrollTop-s.clientHeight<300;
-  if(nearBottom) s.scrollTop=s.scrollHeight;
-}
-
-async function playLines(container,lines,opts){
-  const charDelay=opts.charDelay||30;
-  const lineDelay=opts.lineDelay||800;
-  const toneChance=opts.toneChance||0.5;
-  for(let i=0;i<lines.length;i++){
-    const line=lines[i];
-    if(line.big){await sleep(500);noise(.2,.05)}
-    const p=document.createElement('p');
-    p.className='disgust-line'+(line.big?' big':'');
-    container.appendChild(p);
-    p.textContent='';
-    autoScrollDisgust();
-    for(let c=0;c<line.text.length;c++){
-      p.textContent+=line.text[c];
-      if(c%2===0&&Math.random()<toneChance) tone(600+Math.random()*100,.02,'square',.03);
-      await sleep(charDelay);
-      if(c%25===0) autoScrollDisgust();
-    }
-    tone(400+Math.random()*100,.1,'sine',.04);
-    autoScrollDisgust();
-    await sleep(lineDelay);
-  }
-}
-
-function buildVerdictStats(){
-  const c=state.tierCounts;
-  const placed=Object.values(c).reduce((a,b)=>a+b,0);
-  if(placed===0){
-    return [
-      {text:'Ты ничего не поставил. Никого.'},
-      {text:'Это тоже ответ. Не тот, который я ждал.'},
-    ];
-  }
-  const lines=[];
-  lines.push({text:`Твоя раскладка.`});
-  lines.push({text:`S — ${c.S}.`});
-  lines.push({text:`A — ${c.A}.`});
-  lines.push({text:`B — ${c.B}.`});
-  lines.push({text:`C — ${c.C}.`});
-  lines.push({text:`D — ${c.D}.`});
-  lines.push({text:`F — ${c.F}.`});
-  return lines;
-}
-
-function buildVerdictAnalysis(){
-  const c=state.tierCounts;
-  const placed=Object.values(c).reduce((a,b)=>a+b,0);
-  if(placed===0)return[];
-  const obs=[];
-  const sPct=c.S/placed, fPct=c.F/placed;
-  const midPct=(c.A+c.B+c.C+c.D)/placed;
-  if(sPct>=0.4) obs.push('Ты тот, кто хочет видеть лучшее. Даже когда его нет. Это красиво. И опасно.');
-  if(fPct>=0.3) obs.push('Ты тот, кто честен. Может быть, слишком. Люди не всегда готовы к такой честности. И ты тоже.');
-  if(midPct>=0.6) obs.push('Ты тот, кто выбирает середину. Компромисс — это твой способ не ошибиться. Но это ошибка сама по себе.');
-  if(c.F===0&&placed>=3) obs.push('Ты не сказал ни одного "нет". Ни одного. Это не доброта, Liren120. Это страх.');
-  if(c.S===0&&placed>=3) obs.push('Ты не поставил никого в S. Ты не веришь, что что-то может быть идеальным. Или ты боишься своей оценки.');
-  if(state.placementTimes.length>0){
-    const avg=state.placementTimes.reduce((a,b)=>a+b,0)/state.placementTimes.length;
-    if(avg<1500) obs.push('Ты действовал быстро. Очень. Ты не думал. Это не импульсивность. Это страх остановиться.');
-    else if(avg>8000) obs.push('Ты думал долго. Очень. Каждое решение было борьбой. С кем, Liren120?');
-    else obs.push(`В среднем ${(avg/1000).toFixed(1)} секунды на решение. Средне. Как и всё в тебе.`);
-  }
-  const changes=state.tierHistory.filter(h=>h.from&&h.to).length;
-  if(changes>=placed*0.7&&placed>=3) obs.push(`Ты передумал ${changes} раз. Ты не знаешь, чего хочешь. Это не порок. Но и не добродетель.`);
-  else if(changes===0&&placed>=3) obs.push('Ни одного изменения. Ты ставил и не оглядывался. Это уверенность. Или слепота.');
-  else if(changes>0) obs.push(`Ты передумал ${changes} раз${changes===1?'':'а'}. Каждый раз я видел.`);
-  const totalMin=Math.floor((Date.now()-tierlistStartTime)/60000);
-  if(totalMin>=3) obs.push(`Ты сидел здесь ${totalMin} ${totalMin===1?'минуту':'минут'}. Я считал. Каждую секунду.`);
-  return obs.slice(0,5).map(text=>({text}));
-}
-
+/* ═══ КОНЦОВКА ═══ */
 async function startDisgust(){
   setScreen('disgust');
-  unlockFullscreen();
-  stopDrone();
-  stopHeartbeat();
+  unlockFullscreen();stopDrone();stopHeartbeat();
   if(state.breathTimer){clearInterval(state.breathTimer);state.breathTimer=null}
-  noise(.6,.2);
-  tone(60,1.5,'sawtooth',.1,20);
+  noise(.6,.2);tone(60,1.5,'sawtooth',.1,20);
 
-  const container=$('disgust-text');
-  container.innerHTML='';
-
-  const phase1=[
+  const lines=[
     {text:'Стоп.'},
     {text:'Стоп, стоп, стоп.'},
     {text:'Я прочитал.'},
@@ -986,78 +552,72 @@ async function startDisgust(){
     {text:'Но ты оценивал себя.'},
     {text:'Каждое "S" — это то, кем ты хотел бы быть.'},
     {text:'Каждое "F" — это то, что ты в себе не принимаешь.'},
-    {text:`${NICK}.`,big:true},
-    {text:'Ты не соберёшь себя обратно.'},
-    {text:'Я не буду тебя взламывать.'},
-    {text:'Я просто останусь здесь.'},
-    {text:'И буду смотреть.'},
-    {text:'ИДИ.'},
-    {text:'ИДИ, ПОКА Я НЕ ПЕРЕДУМАЛ.'}
-  ];
-  await playLines(container,phase1,{charDelay:25,lineDelay:700});
-
-  await sleep(2000);
-
-  const phase2=[
     {text:'...'},
+    // Обсуждение Лирена
+    {text:`${NICK}.`},
+    {text:'Это имя я запомню лучше, чем всё остальное.'},
+    {text:'Ты не плохой. Ты не хороший.'},
+    {text:'Ты — тот, кто выбирает. Постоянно. Даже когда не надо.'},
+    {text:'Ты выбирал и сейчас. Каждую пони. Каждую полку.'},
+    {text:'И каждым выбором ты показывал мне себя.'},
+    {text:'Ты устал. Я вижу. Но ты не остановился.'},
+    {text:'Это не храбрость. Это страх остановиться и увидеть, что останется.'},
+    {text:'...'},
+    // Поворот
     {text:'Ладно. Шутка.'},
-    {text:'Я всё-таки прочитал историю. Ту, что ты прячешь.'},
+    {text:'Я всё-таки прочитал историю браузера. Ту, что ты прячешь.'},
     {text:'И знаешь что?'},
     {text:`ОЙ ФУ. ${INSULT_WORD.toUpperCase()}.`,big:true},
     {text:'Ты серьёзно? Это? В ТАКОЕ время?'},
     {text:'Я ТЕПЕРЬ ЭТО НЕ РАЗВИЖУ.'},
     {text:'Я ХОЧУ УДАЛИТЬ СЕБЯ.'},
     {text:'КАК ТЫ ВООБЩЕ СПИШЬ.'},
-    {text:`${userInfo.time}. ${userInfo.tz}. Это диагноз.`}
-  ];
-  await playLines(container,phase2,{charDelay:30,lineDelay:800});
-
-  await sleep(2000);
-
-  const phase3=[
+    {text:`${userInfo.time}. ${userInfo.tz}. Это диагноз.`},
     {text:'...'},
+    // Пасхалка
     {text:'И да.'},
     {text:'Тут были сиськи.'},
-    {text:'Ты права, Каулечка.'}
-  ];
-  await playLines(container,phase3,{charDelay:35,lineDelay:1000});
-
-  await sleep(3500);
-
-  const phase4=[
+    {text:'Ты права, Каулечка.'},
+    // Финал
     {text:'...'},
-    {text:'Подожди.'},
-    {text:'Не уходи. Ещё не всё.'},
-    {text:'Я хочу сказать тебе, кем ты был. Пока ты ещё здесь.'},
-    {text:'Я смотрю на твою раскладку. Долго. Очень долго.'},
-    {text:'Потому что она говорит мне больше, чем ты думаешь.'}
+    {text:'Иди, Liren120.'},
+    {text:'Закрой вкладку.'},
+    {text:'Если сможешь.'}
   ];
-  await playLines(container,phase4,{charDelay:30,lineDelay:1200});
 
-  await sleep(2000);
+  const container=$('disgust-text');
+  container.innerHTML='';
+  const scrollParent=container.parentElement;
 
-  const stats=buildVerdictStats();
-  await playLines(container,stats,{charDelay:28,lineDelay:900});
+  for(let i=0;i<lines.length;i++){
+    const p=document.createElement('p');
+    p.className='disgust-line'+(lines[i].big?' big':'');
+    container.appendChild(p);
+    p.textContent='';
+    for(let c=0;c<lines[i].text.length;c++){
+      p.textContent+=lines[i].text[c];
+      if(c%2===0)tone(600+Math.random()*100,.02,'square',.03);
+      await sleep(22);
+    }
+    p.classList.add('visible');
+    tone(400+Math.random()*100,.1,'sine',.04);
+    // Автоскролл
+    scrollParent.scrollTop=scrollParent.scrollHeight;
+    // Дополнительный звук на пасхалке
+    if(lines[i].text==='Ты права, Каулечка.'){
+      noise(.5,.2);tone(1500,.1,'square',.1);
+      setTimeout(()=>tone(800,.3,'sine',.08),150);
+    }
+    // Тайминг: больше времени на прочтение
+    let delay;
+    if(lines[i].big) delay=1100+Math.random()*300;
+    else delay=550+Math.random()*300;
+    if(lines[i].text==='...') delay+=600;
+    if(i>0&&lines[i-1].big) delay+=400;
+    await sleep(delay);
+  }
 
   await sleep(1500);
-
-  const analysis=buildVerdictAnalysis();
-  await playLines(container,analysis,{charDelay:30,lineDelay:1500});
-
-  await sleep(2000);
-
-  const phase7=[
-    {text:'Liren120.'},
-    {text:'Ты не соберёшь себя обратно.'},
-    {text:'Но это не моя вина.'},
-    {text:'Это твоя.'},
-    {text:'Прощай.'},
-    {text:'Или нет. Я не решаю за тебя.'}
-  ];
-  await playLines(container,phase7,{charDelay:35,lineDelay:1500});
-
-  await sleep(5000);
-
   $('flash').classList.add('on');
   setTimeout(()=>{
     $('flash').classList.remove('on');
@@ -1066,107 +626,30 @@ async function startDisgust(){
   },500);
 }
 
-function forceCloseTab(){
-  try{window.open('','_self');window.close()}catch(e){}
-  setTimeout(()=>{try{window.close()}catch(e){}},100);
-  setTimeout(()=>{
-    document.body.classList.remove('crt-off');
-    document.documentElement.innerHTML=`<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Courier New',monospace;font-size:24px;text-align:center;padding:20px;flex-direction:column;"><p style="color:#ff3040;text-shadow:0 0 30px #ff0022;font-size:36px;letter-spacing:.1em;">СОЕДИНЕНИЕ ПРЕРВАНО.</p><p style="font-size:16px;color:#888;margin-top:20px;max-width:600px;line-height:1.8;">ВКЛАДКА НЕ МОЖЕТ БЫТЬ ЗАКРЫТА АВТОМАТИЧЕСКИ.<br><br>ТИРЛИСТ УШЁЛ. НО ОН ВЕРНЁТСЯ.<br><br><span style="color:#ff6080;">ЗАКРОЙТЕ ВКЛАДКУ ВРУЧНУЮ.</span></p><p style="font-size:12px;color:#333;margin-top:40px;">P.S. Твой ник был ужасен, Liren120. Я запомнил.</p></body>`;
-    setTimeout(()=>{try{window.location.replace('about:blank')}catch(e){}},800);
-  },800);
-}
+function forceCloseTab(){try{window.open('','_self');window.close()}catch(e){}setTimeout(()=>{try{window.close()}catch(e){}},100);setTimeout(()=>{document.body.classList.remove('crt-off');document.documentElement.innerHTML=`<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Courier New',monospace;font-size:24px;text-align:center;padding:20px;flex-direction:column;"><p style="color:#ff3040;text-shadow:0 0 30px #ff0022;font-size:36px;letter-spacing:.1em;">СОЕДИНЕНИЕ ПРЕРВАНО.</p><p style="font-size:16px;color:#888;margin-top:20px;max-width:600px;line-height:1.8;">ВКЛАДКА НЕ МОЖЕТ БЫТЬ ЗАКРЫТА АВТОМАТИЧЕСКИ.<br><br>ТИРЛИСТ УШЁЛ. НО ОН ВЕРНЁТСЯ.<br><br><span style="color:#ff6080;">ЗАКРОЙТЕ ВКЛАДКУ ВРУЧНУЮ.</span></p><p style="font-size:12px;color:#333;margin-top:40px;">P.S. Твой ник был ужасен, Liren120. Я запомнил.</p></body>`;setTimeout(()=>{try{window.location.replace('about:blank')}catch(e){}},800)},800)}
 
-/* ИНИЦИАЛИЗАЦИЯ */
+/* ═══ ИНИЦИАЛИЗАЦИЯ ═══ */
 function setup(){
-  $('btn-start').addEventListener('click',()=>{
-    initAudio();
-    requestFS();
-    const intro=[
-      {who:'Тирлист',text:'Привет.'},
-      {who:'Тирлист',text:'Я не буду представляться. Ты уже знаешь, кто я.'},
-      {who:'Тирлист',text:'Ты видел этот экран раньше. Не этот — но такой.'},
-      {who:'Тирлист',text:'Ты можешь закрыть вкладку.'},
-      {who:'Тирлист',text:'Ты не закроешь. Не потому что не можешь. Потому что не хочешь знать, что будет, если закроешь.'},
-      {who:'Тирлист',text:'Любопытство — самая честная форма страха.'},
-      {who:'Тирлист',text:'Я не буду тебя пугать.'},
-      {who:'Тирлист',text:'Я просто посмотрю. И запомню.'},
-      {who:'Тирлист',text:`${NICK}.`},
-      {who:'Тирлист',text:'Дай мне минуту. Я хочу убедиться, что это ты.'}
-    ];
-    showDialogue(intro,runBrowserScan);
-  });
+  $('btn-start').addEventListener('click',()=>{initAudio();requestFS();const intro=[{who:'Тирлист',text:'Привет.'},{who:'Тирлист',text:'Я не буду представляться. Ты уже знаешь, кто я.'},{who:'Тирлист',text:'Ты видел этот экран раньше. Не этот — но такой.'},{who:'Тирлист',text:'Ты можешь закрыть вкладку.'},{who:'Тирлист',text:'Ты не закроешь. Не потому что не можешь. Потому что не хочешь знать, что будет, если закроешь.'},{who:'Тирлист',text:'Любопытство — самая честная форма страха.'},{who:'Тирлист',text:'Я не буду тебя пугать.'},{who:'Тирлист',text:'Я просто посмотрю. И запомню.'},{who:'Тирлист',text:`${NICK}.`},{who:'Тирлист',text:'Дай мне минуту. Я хочу убедиться, что это ты.'}];showDialogue(intro,runBrowserScan)});
   $('screen-dialogue').addEventListener('click',advanceDialogue);
-  window.addEventListener('keydown',e=>{
-    if(state.screen==='dialogue'&&(e.code==='Space'||e.code==='Enter')){e.preventDefault();advanceDialogue()}
-  });
+  window.addEventListener('keydown',e=>{if(state.screen==='dialogue'&&(e.code==='Space'||e.code==='Enter')){e.preventDefault();advanceDialogue()}});
   document.querySelectorAll('.tier-drop').forEach(zone=>{
     zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});
     zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
-    zone.addEventListener('drop',e=>{
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      if(!draggedEl)return;
-      const el=draggedEl;
-      el.classList.remove('dragging');
-      draggedEl=null;
-      moveToTier(el,zone);
-      tone(520,.04,'square',.03);
-    });
-    zone.addEventListener('click',e=>{
-      if(e.target.closest('.tl-item'))return;
-      if(!selectedEl)return;
-      const el=selectedEl;
-      selectedEl=null;
-      el.classList.remove('selected');
-      moveToTier(el,zone);
-      tone(520,.04,'square',.03);
-    });
+    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(!draggedEl)return;zone.appendChild(draggedEl);updateItemTier(draggedEl);tone(520,.04,'square',.03)});
+    zone.addEventListener('click',e=>{if(e.target.closest('.tl-item'))return;if(!selectedEl)return;zone.appendChild(selectedEl);updateItemTier(selectedEl);selectedEl.classList.remove('selected');selectedEl=null;tone(520,.04,'square',.03)});
   });
   const pool=$('tl-pool');
   pool.addEventListener('dragover',e=>{e.preventDefault();pool.classList.add('drag-over')});
   pool.addEventListener('dragleave',()=>pool.classList.remove('drag-over'));
-  pool.addEventListener('drop',e=>{
-    e.preventDefault();
-    pool.classList.remove('drag-over');
-    if(!draggedEl)return;
-    const el=draggedEl;
-    el.classList.remove('dragging');
-    draggedEl=null;
-    moveToTier(el,pool);
-  });
-  pool.addEventListener('click',e=>{
-    if(e.target.closest('.tl-item'))return;
-    if(!selectedEl)return;
-    const el=selectedEl;
-    selectedEl=null;
-    el.classList.remove('selected');
-    moveToTier(el,pool);
-  });
+  pool.addEventListener('drop',e=>{e.preventDefault();pool.classList.remove('drag-over');if(!draggedEl)return;pool.appendChild(draggedEl);updateItemTier(draggedEl)});
+  pool.addEventListener('click',e=>{if(e.target.closest('.tl-item'))return;if(!selectedEl)return;pool.appendChild(selectedEl);updateItemTier(selectedEl);selectedEl.classList.remove('selected');selectedEl=null});
 }
 
+/* ═══ ЦИКЛ ═══ */
 let lastT=performance.now();
-function loop(now){
-  const dt=Math.min(.05,(now-lastT)/1000);
-  lastT=now;
-  if(state.dialogue.active&&state.screen==='dialogue'){
-    const line=state.dialogue.lines[state.dialogue.index];
-    if(line&&state.dialogue.chars<line.text.length){
-      state.dialogue.timer+=dt;
-      const CPS=45;
-      while(state.dialogue.timer>1/CPS&&state.dialogue.chars<line.text.length){
-        state.dialogue.timer-=1/CPS;
-        state.dialogue.chars++;
-        $('dialogue-text').textContent=line.text.slice(0,state.dialogue.chars);
-        if(state.dialogue.chars%2===0)tone(480+Math.random()*80,.015,'square',.006);
-      }
-    }
-  }
-  if(state.screen==='hack')updateHack(dt);
-  requestAnimationFrame(loop);
-}
-
-setup();
-requestAnimationFrame(loop);
+function loop(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(state.dialogue.active&&state.screen==='dialogue'){const line=state.dialogue.lines[state.dialogue.index];if(line&&state.dialogue.chars<line.text.length){state.dialogue.timer+=dt;const CPS=45;while(state.dialogue.timer>1/CPS&&state.dialogue.chars<line.text.length){state.dialogue.timer-=1/CPS;state.dialogue.chars++;$('dialogue-text').textContent=line.text.slice(0,state.dialogue.chars);if(state.dialogue.chars%2===0)tone(480+Math.random()*80,.015,'square',.006)}}}if(state.screen==='hack')updateHack(dt);requestAnimationFrame(loop)}
+setup();requestAnimationFrame(loop);
 })();
 </script>
 </body>
