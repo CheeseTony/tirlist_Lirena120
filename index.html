@@ -6,120 +6,44 @@
 <title>ТИРЛИСТ</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{
-  width:100%;height:100%;overflow:hidden;background:#050208;color:#d8d0e8;
-  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-  user-select:none;-webkit-user-select:none;
-}
+html,body{width:100%;height:100%;overflow:hidden;background:#050208;color:#d8d0e8;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;user-select:none;-webkit-user-select:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 img{display:block;max-width:100%}
-
-#app{position:fixed;inset:0;overflow:hidden;
-  background:radial-gradient(ellipse at 50% 40%,#1a0410 0%,#08020a 60%,#000 100%);
-}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;
-  opacity:0;visibility:hidden;pointer-events:none;
-  transition:opacity .6s ease,visibility .6s ease;
-}
+#app{position:fixed;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#1a0410 0%,#08020a 60%,#000 100%)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility .6s ease}
 .screen.active{opacity:1;visibility:visible;pointer-events:auto}
-
-.scanlines{position:absolute;inset:0;pointer-events:none;z-index:900;
-  background:repeating-linear-gradient(0deg,rgba(0,0,0,.15) 0px,rgba(0,0,0,.15) 2px,transparent 2px,transparent 4px);
-  opacity:.8;mix-blend-mode:multiply;
-}
-.vignette{position:absolute;inset:0;pointer-events:none;z-index:901;
-  background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.85) 100%);
-}
+.scanlines{position:absolute;inset:0;pointer-events:none;z-index:900;background:repeating-linear-gradient(0deg,rgba(0,0,0,.15) 0px,rgba(0,0,0,.15) 2px,transparent 2px,transparent 4px);opacity:.8;mix-blend-mode:multiply}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:901;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.85) 100%)}
 .flash{position:absolute;inset:0;pointer-events:none;z-index:950;background:#fff;opacity:0;transition:opacity .1s}
 .flash.on{opacity:1}
 .flash.red{background:#ff0022}
-
-.ghost-text{
-  position:fixed;inset:0;z-index:960;pointer-events:none;
-  display:flex;align-items:center;justify-content:center;text-align:center;
-  font-family:'Courier New',monospace;font-weight:900;
-  font-size:clamp(36px,8vw,110px);letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(255,30,60,.95);text-shadow:0 0 40px #ff0022,0 0 80px #ff0022,0 0 120px #ff0022;
-  animation:ghostFade 1.8s ease-out forwards;
-  mix-blend-mode:screen;padding:20px;
-}
-@keyframes ghostFade{
-  0%{opacity:0;transform:scale(.7);filter:blur(20px)}
-  15%{opacity:1;transform:scale(1.05);filter:blur(0)}
-  85%{opacity:1;transform:scale(1.05);filter:blur(0)}
-  100%{opacity:0;transform:scale(1.4);filter:blur(30px)}
-}
-.whisper{
-  position:fixed;z-index:955;pointer-events:none;
-  font-family:'Courier New',monospace;font-style:italic;
-  font-size:14px;letter-spacing:.2em;color:rgba(255,90,120,.8);
-  text-shadow:0 0 12px #ff0022;text-transform:lowercase;
-  animation:whisperFloat 3.2s ease-out forwards;
-}
-@keyframes whisperFloat{
-  0%{opacity:0;transform:translateY(30px) scale(.9);filter:blur(6px)}
-  20%{opacity:.95;filter:blur(0)}
-  80%{opacity:.6}
-  100%{opacity:0;transform:translateY(-120px) scale(1.1);filter:blur(8px)}
-}
+.ghost-text{position:fixed;inset:0;z-index:960;pointer-events:none;display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Courier New',monospace;font-weight:900;font-size:clamp(36px,8vw,110px);letter-spacing:.15em;text-transform:uppercase;color:rgba(255,30,60,.95);text-shadow:0 0 40px #ff0022,0 0 80px #ff0022,0 0 120px #ff0022;animation:ghostFade 1.8s ease-out forwards;mix-blend-mode:screen;padding:20px}
+@keyframes ghostFade{0%{opacity:0;transform:scale(.7);filter:blur(20px)}15%{opacity:1;transform:scale(1.05);filter:blur(0)}85%{opacity:1;transform:scale(1.05);filter:blur(0)}100%{opacity:0;transform:scale(1.4);filter:blur(30px)}}
+.whisper{position:fixed;z-index:955;pointer-events:none;font-family:'Courier New',monospace;font-style:italic;font-size:14px;letter-spacing:.2em;color:rgba(255,90,120,.8);text-shadow:0 0 12px #ff0022;text-transform:lowercase;animation:whisperFloat 3.2s ease-out forwards}
+@keyframes whisperFloat{0%{opacity:0;transform:translateY(30px) scale(.9);filter:blur(6px)}20%{opacity:.95;filter:blur(0)}80%{opacity:.6}100%{opacity:0;transform:translateY(-120px) scale(1.1);filter:blur(8px)}}
 body.heartbeat-pulse #app{animation:heartbeatPulse 1s ease-in-out infinite}
-@keyframes heartbeatPulse{
-  0%,100%{filter:brightness(1) contrast(1)}
-  45%{filter:brightness(1.12) contrast(1.15)}
-  55%{filter:brightness(1.05) contrast(1.1)}
-}
-
-@keyframes glitchShake{
-  0%,100%{transform:translate(0)}
-  20%{transform:translate(-5px,3px)}
-  40%{transform:translate(4px,-3px)}
-  60%{transform:translate(-2px,-5px)}
-  80%{transform:translate(5px,2px)}
-}
+@keyframes heartbeatPulse{0%,100%{filter:brightness(1) contrast(1)}45%{filter:brightness(1.12) contrast(1.15)}55%{filter:brightness(1.05) contrast(1.1)}}
+@keyframes glitchShake{0%,100%{transform:translate(0)}20%{transform:translate(-5px,3px)}40%{transform:translate(4px,-3px)}60%{transform:translate(-2px,-5px)}80%{transform:translate(5px,2px)}}
 @keyframes eyePulse{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.85;filter:brightness(1.3)}}
 @keyframes floatChar{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
 @keyframes flicker{0%,100%{opacity:1}45%{opacity:1}46%{opacity:.4}47%{opacity:1}78%{opacity:.7}79%{opacity:1}}
-
+@keyframes lineAppear{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 body.glitch-hard #app{animation:glitchShake .1s infinite}
-body.glitch-hard .screen.active::after{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(0deg, rgba(255,0,60,.2) 0px, rgba(255,0,60,.2) 2px, transparent 2px, transparent 8px);
-  mix-blend-mode:screen;pointer-events:none;z-index:999;animation:glitchShake .05s infinite;
-}
+body.glitch-hard .screen.active::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,0,60,.2) 0px,rgba(255,0,60,.2) 2px,transparent 2px,transparent 8px);mix-blend-mode:screen;pointer-events:none;z-index:999;animation:glitchShake .05s infinite}
 
 #screen-title{align-items:center;justify-content:center;text-align:center;padding:20px}
-.title-main{
-  font-size:clamp(60px,12vw,160px);font-weight:900;letter-spacing:.15em;color:#c8102e;
-  text-shadow:0 0 30px rgba(200,16,46,.8),0 0 60px rgba(200,16,46,.5);
-  animation:eyePulse 3s ease-in-out infinite;line-height:1;margin-bottom:20px;
-}
+.title-main{font-size:clamp(60px,12vw,160px);font-weight:900;letter-spacing:.15em;color:#c8102e;text-shadow:0 0 30px rgba(200,16,46,.8),0 0 60px rgba(200,16,46,.5);animation:eyePulse 3s ease-in-out infinite;line-height:1;margin-bottom:20px}
 .title-sub{font-size:clamp(14px,2vw,22px);color:rgba(200,180,220,.7);letter-spacing:.08em;font-style:italic;margin-bottom:40px}
 .title-warn{max-width:640px;font-size:clamp(13px,1.6vw,16px);line-height:1.8;color:rgba(255,80,100,.9);margin-bottom:50px}
 .title-buttons{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.title-start{
-  padding:18px 60px;border:2px solid #c8102e;color:#ff3040;font-size:clamp(16px,1.8vw,20px);font-weight:800;
-  letter-spacing:.3em;text-transform:uppercase;transition:all .3s;position:relative;overflow:hidden;
-  box-shadow:0 0 20px rgba(200,16,46,.2);
-}
+.title-start{padding:18px 60px;border:2px solid #c8102e;color:#ff3040;font-size:clamp(16px,1.8vw,20px);font-weight:800;letter-spacing:.3em;text-transform:uppercase;transition:all .3s;position:relative;overflow:hidden;box-shadow:0 0 20px rgba(200,16,46,.2)}
 .title-start:hover{background:#c8102e;color:#fff;box-shadow:0 0 40px rgba(200,16,46,.8);transform:scale(1.05)}
 
 #screen-dialogue{background:radial-gradient(ellipse at 70% 50%,#200820 0%,#08020a 70%,#000 100%)}
 .char-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.tirlist-img{
-  height:95vh;max-height:1000px;aspect-ratio:auto;object-fit:contain;
-  filter:drop-shadow(0 0 80px rgba(200,10,40,.5)) contrast(1.2) saturate(1.2);
-  animation:floatChar 6s ease-in-out infinite;position:relative;z-index:1;
-}
-.dialogue-box{
-  position:absolute;left:50%;bottom:40px;transform:translateX(-50%);
-  width:min(900px,90vw);min-height:180px;
-  background:rgba(8,2,14,.95);border:2px solid rgba(200,20,50,.8);border-radius:6px;padding:24px 30px;
-  backdrop-filter:blur(10px);box-shadow:0 0 60px rgba(200,10,40,.4),inset 0 0 30px rgba(200,10,40,.1);z-index:10;
-}
-.dialogue-speaker{
-  position:absolute;top:-16px;left:24px;padding:8px 24px;background:#c8102e;color:#fff;
-  font-size:16px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;box-shadow:0 0 20px rgba(200,10,40,.8);
-}
+.tirlist-img{height:95vh;max-height:1000px;aspect-ratio:auto;object-fit:contain;filter:drop-shadow(0 0 80px rgba(200,10,40,.5)) contrast(1.2) saturate(1.2);animation:floatChar 6s ease-in-out infinite;position:relative;z-index:1}
+.dialogue-box{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);width:min(900px,90vw);min-height:180px;background:rgba(8,2,14,.95);border:2px solid rgba(200,20,50,.8);border-radius:6px;padding:24px 30px;backdrop-filter:blur(10px);box-shadow:0 0 60px rgba(200,10,40,.4),inset 0 0 30px rgba(200,10,40,.1);z-index:10}
+.dialogue-speaker{position:absolute;top:-16px;left:24px;padding:8px 24px;background:#c8102e;color:#fff;font-size:16px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;box-shadow:0 0 20px rgba(200,10,40,.8)}
 .dialogue-text{font-size:clamp(16px,1.8vw,22px);line-height:1.7;color:#e8e0f4;min-height:70px;margin-top:10px;font-family:'Courier New',monospace}
 .dialogue-arrow{position:absolute;right:30px;bottom:20px;color:#ff3040;font-size:24px;animation:floatChar 1s ease-in-out infinite}
 .dialogue-hint{position:absolute;right:30px;bottom:18px;font-size:12px;color:rgba(200,180,220,.4);letter-spacing:.1em}
@@ -151,17 +75,15 @@ body.glitch-hard .screen.active::after{
 .tl-pool-label{font-size:14px;color:rgba(200,180,220,.6);letter-spacing:.2em;text-transform:uppercase;margin-top:15px;flex-shrink:0;padding-top:10px;border-top:2px solid rgba(200,20,50,.2)}
 .tl-pool{display:flex;flex-wrap:wrap;gap:12px;padding:15px 10px;background:#0c0c14;border-radius:8px;min-height:100px;transition:background .2s;border:1px dashed rgba(200,20,50,.3);cursor:pointer}
 .tl-pool.drag-over{background:#1a1018;box-shadow:inset 0 0 20px rgba(255,60,90,.3);border-color:#ff3040}
-.tl-item{width:80px;flex-shrink:0;cursor:grab;border-radius:6px;overflow:hidden;background:#222;transition:transform .15s, box-shadow .15s, border-color .15s;position:relative;touch-action:none}
+.tl-item{width:80px;flex-shrink:0;cursor:grab;border-radius:6px;overflow:hidden;background:#222;transition:transform .15s,box-shadow .15s,border-color .15s;position:relative;touch-action:none}
 .tl-item:hover{transform:scale(1.1);box-shadow:0 0 20px rgba(255,60,90,.8);z-index:2}
 .tl-item:active{cursor:grabbing}
 .tl-item.dragging{opacity:.3;transform:scale(.9)}
 .tl-item img{width:100%;height:64px;object-fit:cover;background:#111;pointer-events:none !important;-webkit-user-drag:none !important;user-select:none !important}
 .tl-item-name{font-size:10px;padding:4px;background:#0c0c12;color:#bbb;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4;pointer-events:none}
 .tl-item.selected{box-shadow:0 0 25px rgba(255,60,90,1),0 0 50px rgba(255,60,90,.5);transform:scale(1.12);z-index:5;border:2px solid #ff3040}
-
 .tl-loading{padding:24px;text-align:center;width:100%;font-family:'Courier New',monospace;color:rgba(200,180,220,.6);font-size:14px;letter-spacing:.15em}
 .tl-loading .dot{display:inline-block;animation:eyePulse 1s ease-in-out infinite}
-
 .tl-comment{position:absolute;bottom:20px;right:20px;max-width:420px;padding:16px 20px;background:rgba(10,2,16,.95);border:1px solid rgba(200,20,50,.6);border-radius:8px;font-size:15px;line-height:1.6;color:#e0d8ec;font-family:'Courier New',monospace;opacity:0;transform:translateY(15px);transition:all .4s ease;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.8);z-index:5}
 .tl-comment.show{opacity:1;transform:translateY(0)}
 .tl-comment::before{content:'ТИРЛИСТ';position:absolute;top:-12px;left:16px;font-size:10px;letter-spacing:.25em;color:#ff3040;font-weight:900;background:rgba(10,2,16,.95);padding:0 8px}
@@ -196,54 +118,32 @@ body.glitch-hard .screen.active::after{
 .hack-log{width:100%;max-height:140px;overflow:hidden;font-family:'Courier New',monospace;font-size:13px;text-align:left;padding:12px 16px;background:rgba(0,0,0,.85);border:1px solid rgba(80,255,140,.4);border-radius:4px;color:#5eff8c;line-height:1.7;box-shadow:inset 0 0 20px rgba(0,255,68,.1)}
 .hack-log-line{opacity:.2;transition:opacity .2s}
 .hack-log-line:last-child{opacity:1;color:#fff}
-
 .hack-terminal{width:100%;background:rgba(0,0,0,.92);border:1px solid rgba(80,255,140,.5);border-radius:4px;padding:12px 16px;font-family:'Courier New',monospace;font-size:13px;color:#5eff8c;text-align:left;max-height:180px;overflow-y:auto}
 .hack-terminal .term-out{white-space:pre-wrap;line-height:1.5}
 .hack-terminal .term-line{margin:2px 0}
 .hack-terminal .term-line.err{color:#ff4455}
 .hack-terminal .term-line.info{color:#5ac8ff}
-.hack-terminal .term-line.dim{color:#3a8050}
 .term-input-row{display:flex;gap:8px;align-items:center;margin-top:6px}
 .term-input-row span{color:#5eff8c}
 .term-input-row input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:13px;caret-color:#5eff8c}
-
 .hack-success{font-size:clamp(36px,6vw,70px);font-weight:900;color:#44ff88;font-family:'Courier New',monospace;letter-spacing:.15em;text-shadow:0 0 40px #00ff44,0 0 80px rgba(0,255,68,.8);opacity:0;transition:opacity .3s}
 .hack-success.show{opacity:1;animation:eyePulse .8s ease-in-out infinite}
 .hack-warn{font-size:clamp(18px,2.8vw,30px);font-weight:900;color:#ff2233;font-family:'Courier New',monospace;letter-spacing:.2em;opacity:0;transition:opacity .3s;text-shadow:0 0 25px #ff0022}
 .hack-warn.show{opacity:1}
 
-#screen-disgust{align-items:center;justify-content:center;background:#000;flex-direction:column;padding:40px 20px;text-align:center}
-.disgust-text{max-width:850px;font-family:'Courier New',monospace;font-size:clamp(15px,1.9vw,22px);line-height:1.8;color:#ff3040;text-shadow:0 0 15px rgba(255,48,64,.5)}
-.disgust-line{margin:6px 0;opacity:0;transition:opacity .15s}
-.disgust-line.visible{opacity:1}
-.disgust-line.big{font-size:1.35em;font-weight:900;color:#ff0022;animation:flicker 2s ease-in-out infinite}
+#screen-disgust{align-items:center;justify-content:flex-start;background:#000;flex-direction:column;padding:40px 20px;text-align:center;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,48,64,.5) transparent}
+#screen-disgust::-webkit-scrollbar{width:6px}
+#screen-disgust::-webkit-scrollbar-track{background:transparent}
+#screen-disgust::-webkit-scrollbar-thumb{background:rgba(255,48,64,.4);border-radius:3px}
+.disgust-text{max-width:850px;width:100%;padding-bottom:20vh;font-family:'Courier New',monospace;font-size:clamp(15px,1.9vw,22px);line-height:1.8;color:#ff3040;text-shadow:0 0 15px rgba(255,48,64,.5)}
+.disgust-line{margin:6px 0;animation:lineAppear .25s ease}
+.disgust-line.big{font-size:1.35em;font-weight:900;color:#ff0022;animation:lineAppear .3s ease, flicker 2s ease-in-out 2s infinite}
 
-#fs-block-overlay{
-  position:fixed;inset:0;z-index:99999;
-  background:#000;color:#ff3040;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:'Courier New',monospace;text-align:center;padding:40px;
-  cursor:pointer;user-select:none;
-}
+#fs-block-overlay{position:fixed;inset:0;z-index:99999;background:#000;color:#ff3040;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Courier New',monospace;text-align:center;padding:40px;cursor:pointer;user-select:none}
 .fs-attempts{color:#fff;font-size:1.3em;font-weight:900;animation:eyePulse 1s ease-in-out infinite}
-
 body.crt-off #app{animation:crtOff .9s ease-in forwards}
-@keyframes crtOff{
-  0%{transform:scaleY(1) scaleX(1);filter:brightness(1)}
-  40%{transform:scaleY(.005) scaleX(1);filter:brightness(4)}
-  60%{transform:scaleY(.005) scaleX(1);filter:brightness(6)}
-  100%{transform:scaleY(0) scaleX(0);filter:brightness(0)}
-}
-
-@media (max-width:600px){
-  .tier-label{width:60px;font-size:26px}
-  .tl-item{width:64px}
-  .tl-item img{height:50px}
-  .dialogue-box{width:95vw;bottom:20px;padding:18px 20px;min-height:150px}
-  .dialogue-text{font-size:15px}
-  .hack-log{max-height:100px;font-size:11px}
-  .hack-terminal{max-height:120px;font-size:11px}
-}
+@keyframes crtOff{0%{transform:scaleY(1) scaleX(1);filter:brightness(1)}40%{transform:scaleY(.005) scaleX(1);filter:brightness(4)}60%{transform:scaleY(.005) scaleX(1);filter:brightness(6)}100%{transform:scaleY(0) scaleX(0);filter:brightness(0)}}
+@media (max-width:600px){.tier-label{width:60px;font-size:26px}.tl-item{width:64px}.tl-item img{height:50px}.dialogue-box{width:95vw;bottom:20px;padding:18px 20px;min-height:150px}.dialogue-text{font-size:15px}.hack-log{max-height:100px;font-size:11px}.hack-terminal{max-height:120px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -253,9 +153,7 @@ body.crt-off #app{animation:crtOff .9s ease-in forwards}
     <h1 class="title-main">ТИРЛИСТ</h1>
     <p class="title-sub">история о том, как ты не послушал</p>
     <p class="title-warn">Я не рекомендую меня проходить.<br>Ты можешь закрыть вкладку прямо сейчас.<br>Но ты не закроешь. Вы никогда не закрываете.</p>
-    <div class="title-buttons">
-      <button class="title-start" id="btn-start">начать</button>
-    </div>
+    <div class="title-buttons"><button class="title-start" id="btn-start">начать</button></div>
   </div>
 
   <div class="screen" id="screen-dialogue">
@@ -270,9 +168,7 @@ body.crt-off #app{animation:crtOff .9s ease-in forwards}
     </div>
   </div>
 
-  <div class="screen" id="screen-scan">
-    <div class="scan-box" id="scan-box"></div>
-  </div>
+  <div class="screen" id="screen-scan"><div class="scan-box" id="scan-box"></div></div>
 
   <div class="screen" id="screen-tierlist">
     <div class="tl-header">
@@ -288,9 +184,7 @@ body.crt-off #app{animation:crtOff .9s ease-in forwards}
       <div class="tier-row" data-tier="D"><div class="tier-label">D</div><div class="tier-drop" data-tier="D"></div></div>
       <div class="tier-row" data-tier="F"><div class="tier-label">F</div><div class="tier-drop" data-tier="F"></div></div>
       <div class="tl-pool-label">Пул неразобранного</div>
-      <div class="tl-pool" id="tl-pool">
-        <div class="tl-loading">Собираю поней<span class="dot">…</span></div>
-      </div>
+      <div class="tl-pool" id="tl-pool"><div class="tl-loading">Собираю поней<span class="dot">…</span></div></div>
     </div>
     <div class="tl-comment" id="tl-comment"></div>
   </div>
@@ -308,10 +202,7 @@ body.crt-off #app{animation:crtOff .9s ease-in forwards}
     <div class="hack-ui">
       <div class="hack-title">ВЗЛОМ СИСТЕМЫ ИГРОКА</div>
       <div class="hack-percent" id="hack-percent">0%</div>
-      <div class="hack-bar-wrap">
-        <div class="hack-bar-fill" id="hack-bar-fill"></div>
-        <div class="hack-bar-segments"></div>
-      </div>
+      <div class="hack-bar-wrap"><div class="hack-bar-fill" id="hack-bar-fill"></div><div class="hack-bar-segments"></div></div>
       <div class="hack-phrase" id="hack-phrase"></div>
       <div class="hack-log" id="hack-log"></div>
       <div class="hack-terminal" id="hack-terminal">
@@ -323,9 +214,7 @@ body.crt-off #app{animation:crtOff .9s ease-in forwards}
     </div>
   </div>
 
-  <div class="screen" id="screen-disgust">
-    <div class="disgust-text" id="disgust-text"></div>
-  </div>
+  <div class="screen" id="screen-disgust"><div class="disgust-text" id="disgust-text"></div></div>
 
   <div class="scanlines"></div>
   <div class="vignette"></div>
@@ -347,830 +236,424 @@ body.crt-off #app{animation:crtOff .9s ease-in forwards}
 (() => {
 'use strict';
 
-/* ═══════════════════════════════════════════════════
-   КОНСТАНТЫ
-   ═══════════════════════════════════════════════════ */
 const NICK = 'Liren120';
 const MAX_PONIES = 500;
-const PONY_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'avif'];
+const PONY_EXTENSIONS = ['png','jpg','jpeg','webp','gif','avif'];
 const MAX_CONSECUTIVE_MISSES = 10;
+const INSULT_WORD = 'извращуга'; // замени на 'извращенец', если хочешь мягче
+
+const TIER_ORDER = ['S','A','B','C','D','F'];
 
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const rand = (a, b) => a + Math.random() * (b - a);
+const rand = (a,b) => a + Math.random()*(b-a);
 
-/* ═══════════════════════════════════════════════════
-   АУДИО
-   ═══════════════════════════════════════════════════ */
-let actx = null, master = null;
-function initAudio() {
-  if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
-  try {
-    actx = new (window.AudioContext || window.webkitAudioContext)();
-    master = actx.createGain(); master.gain.value = 0.25; master.connect(actx.destination);
-  } catch(e) {}
-}
-function tone(freq, dur, type = 'square', vol = 0.08, glideTo = 0) {
-  if (!actx || !master) return;
-  const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
-  o.type = type; o.frequency.setValueAtTime(freq, t);
-  if (glideTo) o.frequency.exponentialRampToValueAtTime(Math.max(30, glideTo), t + dur);
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
-}
-function noise(dur = 0.15, vol = 0.06) {
-  if (!actx || !master) return;
-  const len = Math.floor(actx.sampleRate * dur), buf = actx.createBuffer(1, len, actx.sampleRate), data = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
-  const src = actx.createBufferSource(), g = actx.createGain();
-  g.gain.value = vol; src.buffer = buf; src.connect(g); g.connect(master); src.start();
-}
+/* АУДИО */
+let actx=null, master=null;
+function initAudio(){if(actx){if(actx.state==='suspended')actx.resume();return}try{actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.25;master.connect(actx.destination)}catch(e){}}
+function tone(freq,dur,type='square',vol=.08,glideTo=0){if(!actx||!master)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(glideTo)o.frequency.exponentialRampToValueAtTime(Math.max(30,glideTo),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.05)}
+function noise(dur=.15,vol=.06){if(!actx||!master)return;const len=Math.floor(actx.sampleRate*dur),buf=actx.createBuffer(1,len,actx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);const src=actx.createBufferSource(),g=actx.createGain();g.gain.value=vol;src.buffer=buf;src.connect(g);g.connect(master);src.start()}
+let droneOsc=null,droneFilter=null;
+function startDrone(freq=42){stopDrone();if(!actx||!master)return;droneOsc=actx.createOscillator();droneFilter=actx.createBiquadFilter();const g=actx.createGain();droneOsc.type='sawtooth';droneOsc.frequency.value=freq;droneFilter.type='lowpass';droneFilter.frequency.value=200;g.gain.value=.08;droneOsc.connect(droneFilter);droneFilter.connect(g);g.connect(master);droneOsc.start()}
+function stopDrone(){try{if(droneOsc)droneOsc.stop()}catch(e){}droneOsc=null}
+let heartbeatTimer=null;
+function startHeartbeat(interval=1000,gain=.18){stopHeartbeat();document.body.classList.add('heartbeat-pulse');heartbeatTimer=setInterval(()=>{tone(55,.18,'sine',gain,35);setTimeout(()=>tone(50,.22,'sine',gain*.8,32),200)},interval)}
+function stopHeartbeat(){if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}document.body.classList.remove('heartbeat-pulse')}
+function playWhisper(){if(!actx)return;noise(.5,.02);tone(150+Math.random()*150,.5,'triangle',.02,100)}
 
-let droneOsc = null, droneGain = null, droneFilter = null;
-function startDrone(freq = 42) {
-  stopDrone();
-  if (!actx || !master) return;
-  droneOsc = actx.createOscillator(); droneFilter = actx.createBiquadFilter(); droneGain = actx.createGain();
-  droneOsc.type = 'sawtooth'; droneOsc.frequency.value = freq;
-  droneFilter.type = 'lowpass'; droneFilter.frequency.value = 200; droneGain.gain.value = 0.08;
-  droneOsc.connect(droneFilter); droneFilter.connect(droneGain); droneGain.connect(master); droneOsc.start();
-}
-function stopDrone() { try { if (droneOsc) droneOsc.stop(); } catch(e) {} droneOsc = null; }
+/* FULLSCREEN */
+let fsLocked=false,fsLockInterval=null,blockOverlay=null,escapeAttempts=0,lastEscapeTime=0;
+function isFS(){return!!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement)}
+function requestFS(){return new Promise(resolve=>{if(isFS())return resolve(true);const el=document.documentElement;const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;if(!req)return resolve(false);try{const r=req.call(el,{navigationUI:'hide'});if(r&&r.then)r.then(()=>resolve(true)).catch(()=>resolve(false));else resolve(true)}catch(e){resolve(false)}})}
+function showBlockOverlay(){escapeAttempts++;const now=Date.now();if(now-lastEscapeTime<400&&escapeAttempts>3)return;lastEscapeTime=now;if(!blockOverlay){blockOverlay=document.createElement('div');blockOverlay.id='fs-block-overlay';document.body.appendChild(blockOverlay)}blockOverlay.innerHTML=`<h1 style="font-size:clamp(32px,7vw,72px);margin-bottom:30px;color:#ff3040;text-shadow:0 0 40px #ff0022,0 0 80px #ff0022;animation:eyePulse 1s ease-in-out infinite;letter-spacing:.15em;font-weight:900;">ВЫХОД ЗАБЛОКИРОВАН</h1><p style="font-size:clamp(16px,2.5vw,24px);line-height:1.8;max-width:640px;color:#ff6080;font-family:'Courier New',monospace;">Ты пытаешься уйти, ${NICK}.<br><span class="fs-attempts">Попытка №${escapeAttempts}</span><br><br>${escapeAttempts>=3?'Заметь: ты не уходишь. Ты возвращаешься.<br><br>':''}${escapeAttempts>=6?'Мы оба знаем, что ты останешься.<br>Вопрос только — надолго ли.<br><br>':''}Нажми, чтобы вернуться. Мы ещё не закончили.</p>`;blockOverlay.onclick=()=>{hideBlockOverlay();requestFS();tone(120,.6,'sawtooth',.12,60);noise(.3,.1)};noise(.4,.18);tone(80,1,'sawtooth',.18,25);tone(45,1.2,'square',.1,20);document.body.classList.add('glitch-hard');setTimeout(()=>document.body.classList.remove('glitch-hard'),400);const flash=$('flash');if(flash){flash.classList.add('red');flash.style.opacity='0.5';setTimeout(()=>{flash.classList.remove('red');flash.style.opacity=''},120)}}
+function hideBlockOverlay(){if(blockOverlay){blockOverlay.remove();blockOverlay=null}}
+async function lockFullscreen(){fsLocked=true;await requestFS();if(navigator.keyboard&&typeof navigator.keyboard.lock==='function'){try{await navigator.keyboard.lock(['Escape','F11'])}catch(e){}}if(!fsLockInterval){fsLockInterval=setInterval(()=>{if(fsLocked&&!isFS()&&!blockOverlay)showBlockOverlay()},300)}}
+function unlockFullscreen(){fsLocked=false;if(fsLockInterval){clearInterval(fsLockInterval);fsLockInterval=null}if(navigator.keyboard&&typeof navigator.keyboard.unlock==='function'){try{navigator.keyboard.unlock()}catch(e){}}hideBlockOverlay()}
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{document.addEventListener(ev,()=>{if(!fsLocked)return;if(!isFS()){showBlockOverlay();setTimeout(()=>{if(fsLocked&&!isFS())requestFS()},30)}else hideBlockOverlay()})});
+window.addEventListener('keydown',e=>{if(fsLocked&&(e.key==='Escape'||e.key==='F11'||e.code==='F11'||e.code==='Escape')){e.preventDefault();e.stopPropagation();setTimeout(()=>{if(fsLocked&&!isFS()){requestFS();showBlockOverlay()}},30);return false}},true);
+window.addEventListener('keyup',e=>{if(fsLocked&&(e.key==='Escape'||e.key==='F11'||e.code==='F11'||e.code==='Escape')){e.preventDefault();e.stopPropagation();return false}},true);
 
-let heartbeatTimer = null;
-function startHeartbeat(interval = 1000, gain = 0.18) {
-  stopHeartbeat();
-  document.body.classList.add('heartbeat-pulse');
-  heartbeatTimer = setInterval(() => {
-    tone(55, 0.18, 'sine', gain, 35);
-    setTimeout(() => tone(50, 0.22, 'sine', gain * 0.8, 32), 200);
-  }, interval);
-}
-function stopHeartbeat() {
-  if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
-  document.body.classList.remove('heartbeat-pulse');
-}
+/* СБОР ДАННЫХ */
+function getGPUInfo(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return'Неизвестно';const dbg=gl.getExtension('WEBGL_debug_renderer_info');if(dbg)return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);return gl.getParameter(gl.RENDERER)||'Неизвестно'}catch(e){return'Неизвестно'}}
+function getBrowserInfo(){const ua=navigator.userAgent;let os='Неизвестная ОС',browser='Неизвестный браузер';if(ua.indexOf('Win')!=-1)os='Windows';if(ua.indexOf('Mac')!=-1)os='macOS';if(ua.indexOf('Linux')!=-1)os='Linux';if(ua.indexOf('Android')!=-1)os='Android';if(ua.indexOf('like Mac')!=-1)os='iOS';if(ua.indexOf('Firefox')!=-1)browser='Firefox';else if(ua.indexOf('SamsungBrowser')!=-1)browser='Samsung Internet';else if(ua.indexOf('Opera')!=-1||ua.indexOf('OPR')!=-1)browser='Opera';else if(ua.indexOf('Edg')!=-1)browser='Edge';else if(ua.indexOf('Chrome')!=-1)browser='Chrome';else if(ua.indexOf('Safari')!=-1)browser='Safari';const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Неизвестно';const lang=navigator.language||'ru-RU';const now=new Date();const timeStr=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});const dateStr=now.toLocaleDateString('ru-RU');return{os,browser,screen:`${window.screen.width}x${window.screen.height}`,tz,lang,cores:navigator.hardwareConcurrency||'?',memory:navigator.deviceMemory?navigator.deviceMemory+' ГБ':'?',gpu:getGPUInfo(),dnt:navigator.doNotTrack==='1'?'включён':'выключен',cookies:navigator.cookieEnabled?'включены':'выключены',online:navigator.onLine?'в сети':'офлайн',touch:'ontouchstart'in window?'да':'нет',time:timeStr,date:dateStr,referrer:document.referrer||'',url:location.href,devicePixelRatio:window.devicePixelRatio||1,colorDepth:window.screen.colorDepth||'?',orientation:(window.screen.orientation&&window.screen.orientation.type)||'?'}}
+const userInfo=getBrowserInfo();
 
-function playWhisper() {
-  if (!actx) return;
-  noise(0.5, 0.02);
-  tone(150 + Math.random() * 150, 0.5, 'triangle', 0.02, 100);
-}
-
-/* ═══════════════════════════════════════════════════
-   FULLSCREEN + KEYBOARD LOCK
-   ═══════════════════════════════════════════════════ */
-let fsLocked = false;
-let fsLockInterval = null;
-let blockOverlay = null;
-let escapeAttempts = 0;
-let lastEscapeTime = 0;
-
-function isFS() {
-  return !!(document.fullscreenElement || document.webkitFullscreenElement ||
-            document.mozFullScreenElement || document.msFullscreenElement);
-}
-function requestFS() {
-  return new Promise((resolve) => {
-    if (isFS()) return resolve(true);
-    const el = document.documentElement;
-    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-    if (!req) return resolve(false);
-    try {
-      const r = req.call(el, { navigationUI: 'hide' });
-      if (r && r.then) r.then(() => resolve(true)).catch(() => resolve(false));
-      else resolve(true);
-    } catch (e) { resolve(false); }
-  });
-}
-
-function showBlockOverlay() {
-  escapeAttempts++;
-  const now = Date.now();
-  if (now - lastEscapeTime < 400 && escapeAttempts > 3) return;
-  lastEscapeTime = now;
-
-  if (!blockOverlay) {
-    blockOverlay = document.createElement('div');
-    blockOverlay.id = 'fs-block-overlay';
-    document.body.appendChild(blockOverlay);
-  }
-  blockOverlay.innerHTML = `
-    <h1 style="font-size:clamp(32px,7vw,72px);margin-bottom:30px;color:#ff3040;
-      text-shadow:0 0 40px #ff0022,0 0 80px #ff0022;
-      animation:eyePulse 1s ease-in-out infinite;letter-spacing:.15em;font-weight:900;">
-      ВЫХОД ЗАБЛОКИРОВАН
-    </h1>
-    <p style="font-size:clamp(16px,2.5vw,24px);line-height:1.8;max-width:640px;color:#ff6080;font-family:'Courier New',monospace;">
-      Ты пытаешься уйти, ${NICK}.<br>
-      <span class="fs-attempts">Попытка №${escapeAttempts}</span><br><br>
-      ${escapeAttempts >= 3 ? 'Заметь: ты не уходишь. Ты возвращаешься.<br><br>' : ''}
-      ${escapeAttempts >= 6 ? 'Мы оба знаем, что ты останешься.<br>Вопрос только — надолго ли.<br><br>' : ''}
-      Нажми, чтобы вернуться. Мы ещё не закончили.
-    </p>
-  `;
-  blockOverlay.onclick = () => {
-    hideBlockOverlay();
-    requestFS();
-    tone(120, 0.6, 'sawtooth', 0.12, 60);
-    noise(0.3, 0.1);
-  };
-
-  noise(0.4, 0.18);
-  tone(80, 1.0, 'sawtooth', 0.18, 25);
-  tone(45, 1.2, 'square', 0.1, 20);
-
-  document.body.classList.add('glitch-hard');
-  setTimeout(() => document.body.classList.remove('glitch-hard'), 400);
-  const flash = $('flash');
-  if (flash) { flash.classList.add('red'); flash.style.opacity = '0.5'; setTimeout(() => { flash.classList.remove('red'); flash.style.opacity = ''; }, 120); }
-}
-
-function hideBlockOverlay() {
-  if (blockOverlay) { blockOverlay.remove(); blockOverlay = null; }
-}
-
-async function lockFullscreen() {
-  fsLocked = true;
-  await requestFS();
-  if (navigator.keyboard && typeof navigator.keyboard.lock === 'function') {
-    try { await navigator.keyboard.lock(['Escape', 'F11']); } catch (e) {}
-  }
-  if (!fsLockInterval) {
-    fsLockInterval = setInterval(() => {
-      if (fsLocked && !isFS() && !blockOverlay) showBlockOverlay();
-    }, 300);
-  }
-}
-function unlockFullscreen() {
-  fsLocked = false;
-  if (fsLockInterval) { clearInterval(fsLockInterval); fsLockInterval = null; }
-  if (navigator.keyboard && typeof navigator.keyboard.unlock === 'function') {
-    try { navigator.keyboard.unlock(); } catch (e) {}
-  }
-  hideBlockOverlay();
-}
-
-['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev => {
-  document.addEventListener(ev, () => {
-    if (!fsLocked) return;
-    if (!isFS()) {
-      showBlockOverlay();
-      setTimeout(() => { if (fsLocked && !isFS()) requestFS(); }, 30);
-    } else hideBlockOverlay();
-  });
-});
-
-window.addEventListener('keydown', (e) => {
-  if (fsLocked && (e.key === 'Escape' || e.key === 'F11' || e.code === 'F11' || e.code === 'Escape')) {
-    e.preventDefault(); e.stopPropagation();
-    setTimeout(() => { if (fsLocked && !isFS()) { requestFS(); showBlockOverlay(); } }, 30);
-    return false;
-  }
-}, true);
-window.addEventListener('keyup', (e) => {
-  if (fsLocked && (e.key === 'Escape' || e.key === 'F11' || e.code === 'F11' || e.code === 'Escape')) {
-    e.preventDefault(); e.stopPropagation();
-    return false;
-  }
-}, true);
-
-/* ═══════════════════════════════════════════════════
-   СБОР ДАННЫХ
-   ═══════════════════════════════════════════════════ */
-function getGPUInfo() {
-  try {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) return 'Неизвестно';
-    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-    if (dbg) return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
-    return gl.getParameter(gl.RENDERER) || 'Неизвестно';
-  } catch (e) { return 'Неизвестно'; }
-}
-
-function getBrowserInfo() {
-  const ua = navigator.userAgent;
-  let os = 'Неизвестная ОС', browser = 'Неизвестный браузер';
-  if (ua.indexOf("Win") != -1) os = "Windows";
-  if (ua.indexOf("Mac") != -1) os = "macOS";
-  if (ua.indexOf("Linux") != -1) os = "Linux";
-  if (ua.indexOf("Android") != -1) os = "Android";
-  if (ua.indexOf("like Mac") != -1) os = "iOS";
-
-  if (ua.indexOf("Firefox") != -1) browser = "Firefox";
-  else if (ua.indexOf("SamsungBrowser") != -1) browser = "Samsung Internet";
-  else if (ua.indexOf("Opera") != -1 || ua.indexOf("OPR") != -1) browser = "Opera";
-  else if (ua.indexOf("Edg") != -1) browser = "Edge";
-  else if (ua.indexOf("Chrome") != -1) browser = "Chrome";
-  else if (ua.indexOf("Safari") != -1) browser = "Safari";
-
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Неизвестно';
-  const lang = navigator.language || 'ru-RU';
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-  const dateStr = now.toLocaleDateString('ru-RU');
-
-  return {
-    os, browser,
-    screen: `${window.screen.width}x${window.screen.height}`,
-    tz, lang,
-    cores: navigator.hardwareConcurrency || '?',
-    memory: navigator.deviceMemory ? navigator.deviceMemory + ' ГБ' : '?',
-    gpu: getGPUInfo(),
-    dnt: navigator.doNotTrack === '1' ? 'включён' : 'выключен',
-    cookies: navigator.cookieEnabled ? 'включены' : 'выключены',
-    online: navigator.onLine ? 'в сети' : 'офлайн',
-    touch: 'ontouchstart' in window ? 'да' : 'нет',
-    time: timeStr,
-    date: dateStr,
-    referrer: document.referrer || '',
-    url: location.href,
-    devicePixelRatio: window.devicePixelRatio || 1,
-    colorDepth: window.screen.colorDepth || '?',
-    orientation: (window.screen.orientation && window.screen.orientation.type) || '?'
-  };
-}
-const userInfo = getBrowserInfo();
-
-/* ═══════════════════════════════════════════════════
-   СОСТОЯНИЕ
-   ═══════════════════════════════════════════════════ */
-const state = {
-  screen: 'title',
-  items: [],
-  interruptsShown: [],
-  interruptActive: false,
-  dialogue: { lines: [], index: 0, chars: 0, timer: 0, active: false, onComplete: null },
-  hack: { progress: 0, success: false, successT: 0, log: [], logTimer: 0, phraseIdx: 0, phraseT: 0 },
-  terminalReady: false,
-  creepTimer: null,
-  breathTimer: null,
-  poniesReady: false
+/* СОСТОЯНИЕ */
+const state={screen:'title',items:[],interruptsShown:[],interruptActive:false,dialogue:{lines:[],index:0,chars:0,timer:0,active:false,onComplete:null},hack:{progress:0,success:false,successT:0,log:[],logTimer:0,phraseIdx:0,phraseT:0,lastCreepAt:0},terminalReady:false,creepTimer:null,breathTimer:null,poniesReady:false,timeSyncTimer:null,
+  tierCounts:{S:0,A:0,B:0,C:0,D:0,F:0},tierHistory:[],placementTimes:[],lastPlacementAt:0,
+  firstS:false,firstF:false,warnedManyS:false,warnedManyF:false,recentReactions:[],inactivityTimer:null
 };
+function setScreen(name){state.screen=name;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=$('screen-'+name);if(el)el.classList.add('active')}
 
-function setScreen(name) {
-  state.screen = name;
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const el = $('screen-' + name);
-  if (el) el.classList.add('active');
-}
+/* ЖУТКИЕ ЭФФЕКТЫ */
+const WHISPERS=['ты уже видел это','здесь было другое число','посчитай ещё раз','ничего не изменится','ты не помнишь?','здесь было больше','ты уверен?','ты сам выбрал','ты помнишь','не в этот раз','кто-то ещё','это было вчера','ты не один','спроси его сам','проверь окно'];
+function spawnWhisper(){const el=document.createElement('div');el.className='whisper';el.textContent=WHISPERS[Math.floor(Math.random()*WHISPERS.length)];el.style.left=(Math.random()*80+10)+'vw';el.style.top=(Math.random()*60+20)+'vh';document.getElementById('app').appendChild(el);setTimeout(()=>el.remove(),3200);playWhisper()}
+function showGhostText(text,duration=1500){const el=document.createElement('div');el.className='ghost-text';el.textContent=text;document.getElementById('app').appendChild(el);setTimeout(()=>el.remove(),duration);noise(.3,.08);tone(70,.5,'sawtooth',.06,40)}
+function fakeCameraFlash(){const flash=$('flash');flash.classList.add('on');tone(1500,.03,'square',.15);noise(.08,.25);setTimeout(()=>{flash.classList.remove('on');showGhostText('СКРИНШОТ СОХРАНЁН',1800);tone(200,.4,'sawtooth',.1,80)},120)}
+function startBreathing(){if(state.breathTimer)clearInterval(state.breathTimer);state.breathTimer=setInterval(()=>{if(state.screen!=='tierlist'&&state.screen!=='hack'&&state.screen!=='dialogue')return;if(!actx)return;tone(90,.55,'sine',.03,110);setTimeout(()=>tone(110,.75,'sine',.025,70),700)},3500)}
+function scheduleCreepEvents(){if(state.creepTimer)clearTimeout(state.creepTimer);const delay=7000+Math.random()*14000;state.creepTimer=setTimeout(()=>{if(state.screen==='tierlist'&&!state.interruptActive){const roll=Math.random();if(roll<.30){spawnWhisper()}else if(roll<.50){document.body.classList.add('glitch-hard');setTimeout(()=>document.body.classList.remove('glitch-hard'),300);tone(80,.3,'sawtooth',.08,40)}else if(roll<.68){fakeCameraFlash()}else if(roll<.82){showGhostText(['ты не один','Liren120','поздно','ты помнишь'][Math.floor(Math.random()*4)],1300)}else if(roll<.94){startHeartbeat(420,.22);setTimeout(()=>startHeartbeat(1000,.16),3500)}else{spawnWhisper();setTimeout(spawnWhisper,400)}}scheduleCreepEvents()},delay)}
+function stopCreepEvents(){if(state.creepTimer){clearTimeout(state.creepTimer);state.creepTimer=null}}
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&state.screen!=='title'&&state.screen!=='disgust'){const away=Math.round((Date.now()-hiddenAt)/1000);if(away>=2){spawnWhisper();if(away>=10)setTimeout(()=>showGhostText('ты вернулся',1500),500)}hiddenAt=0}});
 
-/* ═══════════════════════════════════════════════════
-   ЖУТКИЕ ЭФФЕКТЫ
-   ═══════════════════════════════════════════════════ */
-const WHISPERS = [
-  'ты уже видел это', 'здесь было другое число', 'посчитай ещё раз',
-  'ничего не изменится', 'ты не помнишь?', 'здесь было больше',
-  'ты уверен?', 'ты сам выбрал', 'ты помнишь',
-  'не в этот раз', 'кто-то ещё', 'это было вчера',
-  'ты не один', 'спроси его сам', 'проверь окно'
+/* ВРЕМЯ */
+function startTimeSync(){if(state.timeSyncTimer)clearInterval(state.timeSyncTimer);state.timeSyncTimer=setInterval(()=>{const now=new Date();const timeStr=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});userInfo.time=timeStr;const scanEl=$('scan-time');if(scanEl)scanEl.textContent=timeStr},1000)}
+function stopTimeSync(){if(state.timeSyncTimer){clearInterval(state.timeSyncTimer);state.timeSyncTimer=null}}
+
+/* ДИАЛОГИ */
+function showDialogue(lines,onComplete){state.dialogue.lines=lines;state.dialogue.index=0;state.dialogue.chars=0;state.dialogue.timer=0;state.dialogue.active=true;state.dialogue.onComplete=onComplete;setScreen('dialogue');renderDialogueLine()}
+function renderDialogueLine(){const line=state.dialogue.lines[state.dialogue.index];if(!line)return;$('dialogue-speaker').textContent=line.who||'Тирлист';$('dialogue-text').textContent=''}
+function advanceDialogue(){if(!state.dialogue.active)return;const line=state.dialogue.lines[state.dialogue.index];if(!line)return;if(state.dialogue.chars<line.text.length){state.dialogue.chars=line.text.length;$('dialogue-text').textContent=line.text;return}tone(600,.04,'square',.03);state.dialogue.index++;state.dialogue.chars=0;state.dialogue.timer=0;if(state.dialogue.index>=state.dialogue.lines.length){state.dialogue.active=false;const cb=state.dialogue.onComplete;state.dialogue.onComplete=null;if(cb)cb()}else renderDialogueLine()}
+
+/* СКАНИРОВАНИЕ */
+async function runBrowserScan(){setScreen('scan');const box=$('scan-box');box.innerHTML='';const lines=[`> Инициализация. Без разрешения, как обычно.`,`> Поиск... это не займёт много времени. Ты предсказуем.`,`> Найдено: <span class="scan-warn">${NICK}</span>`,`> ОС: <span class="scan-warn">${userInfo.os}</span>`,`> Браузер: <span class="scan-warn">${userInfo.browser}</span>`,`> Разрешение: <span class="scan-warn">${userInfo.screen}</span>`,`> Глубина цвета: <span class="scan-warn">${userInfo.colorDepth} бит</span>`,`> Часовой пояс: <span class="scan-warn">${userInfo.tz}</span>`,`> Время: <span class="scan-warn" id="scan-time">${userInfo.time}</span>`,`> Язык: <span class="scan-warn">${userInfo.lang}</span>`,`> Ядер CPU: <span class="scan-warn">${userInfo.cores}</span>`,`> ОЗУ: <span class="scan-warn">${userInfo.memory}</span>`,`> GPU: <span class="scan-warn">${userInfo.gpu}</span>`,`> Do Not Track: <span class="scan-warn">${userInfo.dnt}</span>`,`> Cookie: <span class="scan-warn">${userInfo.cookies}</span>`,`> Touch: <span class="scan-warn">${userInfo.touch}</span>`,`> Ориентация: <span class="scan-warn">${userInfo.orientation}</span>`,`> Pixel Ratio: <span class="scan-warn">${userInfo.devicePixelRatio}</span>`,`> ─────────────────────────────────────`,`> Измерение пульса по микродвижениям курсора...`,`> Пульс: <span class="scan-warn">учащён</span>. Причина: я.`,`> Проверка того, что за окном...`,`> Ты не один? <span class="scan-warn">Я знаю ответ</span>.`,`> Доступ к камере: <span class="scan-warn">получен</span>.`,`> Кадр сохранён. Ты не улыбаешься. Правильно.`,`> Микрофон: <span class="scan-warn">включён</span>.`,`> Дыхание: ты пытаешься его сдерживать.`,`> Идентификация завершена.`,`> Уязвимость: <span class="scan-warn">ТЫ</span>.`];startTimeSync();for(let i=0;i<lines.length;i++){const div=document.createElement('div');div.className='scan-line';div.innerHTML=lines[i];box.appendChild(div);setTimeout(()=>div.classList.add('show'),50);tone(400+Math.random()*200,.05,'square',.04);await sleep(180+Math.random()*140);if(i===8||i===20)setTimeout(spawnWhisper,300)}await sleep(500);document.body.classList.add('glitch-hard');noise(.4,.15);tone(80,.8,'sawtooth',.15,30);await sleep(700);document.body.classList.remove('glitch-hard');fakeCameraFlash();const hour=new Date().getHours();const timeJab=(hour>=0&&hour<5)?`${hour} часа. Ты не спишь. Любопытство сильнее усталости. Это диагноз.`:(hour>=5&&hour<9)?`Утро. Ты не выспался. Я подожду, пока ты поймёшь, что это было не обязательно.`:(hour>=22)?`Поздно, ${NICK}. Или рано. Всё зависит от того, кем ты хочешь быть утром.`:`День. Ты тратишь его на меня. Мне лестно. Тебе — нет.`;showDialogue([{who:'Тирлист',text:timeJab},{who:'Тирлист',text:`Я нашёл тебя, ${NICK}.`},{who:'Тирлист',text:'Ты не прятался. Люди почти никогда не прячутся по-настоящему.'},{who:'Тирлист',text:'Они просто надеются, что их не заметят.'},{who:'Тирлист',text:`У тебя ${userInfo.cores} ядер. Я загружаюсь быстрее, чем ты успеваешь моргнуть.`},{who:'Тирлист',text:`GPU: ${userInfo.gpu}. Я на нём уже был. Давно.`},{who:'Тирлист',text:`Твой часовой пояс — ${userInfo.tz}. Я запомнил его раньше, чем ты нажал "начать".`},{who:'Тирлист',text:`Сейчас ${userInfo.time}. Не двигайся.`},{who:'Тирлист',text:'Ладно. Покажи мне своих поней. Я хочу посмотреть, как ты думаешь.'}],startTierlist)}
+
+/* ТИРЛИСТ */
+let draggedEl=null,selectedEl=null,tierlistStartTime=0,timeJabTimer=null;
+let lastReactionTime=0;
+
+const fallbackSvg=(name,color)=>{const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#222"/><circle cx="50" cy="50" r="30" fill="${color}"/><text x="50" y="55" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">${name}</text></svg>`;return'data:image/svg+xml,'+encodeURIComponent(svg)};
+
+const COMMENTS=[
+'Ты не оцениваешь их. Ты оцениваешь себя через них. Каждая полка — это то, кем ты хотел бы быть.',
+'Интересно. Ты поставил её выше, чем следовало бы. Это не про неё. Это про тебя.',
+'Ты уже знаешь, куда её поставить. Ты просто тянешь время.',
+'Каждое решение — это отказ от всех остальных. Ты это понимаешь, да?',
+'Ты двигаешься быстрее. Это страх или азарт? Я не различаю.',
+'Я мог бы сказать, что ты предсказуем. Но я подожду, пока ты закончишь. Так интереснее.',
+'Ты остановился. На секунду. Я заметил.',
+'Хорошо. Продолжай. Мне нравится смотреть, как ты думаешь.',
+'Забавно: ты никогда не поставишь её в F. Никогда. Я прав?',
+`Ты в ${userInfo.browser}. ${userInfo.time}. Я вижу.`,
+`Число твоих ядер — ${userInfo.cores}. Не имеет значения. Но ты гордишься.`,
+'Ты уже задавал себе вопрос: а кто смотрит? Я отвечу позже.',
+'Ты помнишь, как ставил их в прошлый раз? А я помню.',
+'Каждый раз, когда ты сомневаешься, я узнаю о тебе чуть больше.',
+'Ты не устал. Ты просто хочешь, чтобы это закончилось. Я тоже. По-своему.',
+'Продолжай. Скоро мы дойдём до самого важного.',
+'Ты выбираешь. Это хорошо. Значит, ты ещё здесь.',
+'Не торопись. У нас обоих есть время. У меня — больше.',
+'Ты сейчас думаешь, что это игра. Я не буду тебя разубеждать.',
+'Каждая твоя ошибка — это не ошибка. Это ты.'
 ];
 
-function spawnWhisper() {
-  const el = document.createElement('div');
-  el.className = 'whisper';
-  el.textContent = WHISPERS[Math.floor(Math.random() * WHISPERS.length)];
-  el.style.left = (Math.random() * 80 + 10) + 'vw';
-  el.style.top = (Math.random() * 60 + 20) + 'vh';
-  document.getElementById('app').appendChild(el);
-  setTimeout(() => el.remove(), 3200);
-  playWhisper();
-}
+const AMBIENT_LIREN=[
+'Ты дышишь чаще. Я слышу.',
+'Твоя рука задержалась на мышке. На полсекунды. Я заметил.',
+'Ты посмотрел в сторону. Что там, Liren120?',
+'Ты улыбнулся. Я видел. Тебе нравится.',
+'Ты не двигаешься. Ты читаешь. Ты думаешь обо мне.',
+'Ты сейчас думаешь, что это игра. Я не буду тебя разубеждать.',
+'Ты почти нажал "закрыть". Я видел. Почему не нажал?',
+'Твоё сердце бьётся быстрее. Не волнуйся. Это нормально.',
+'Ты сейчас вспомнил что-то. Я не знаю что. Но я видел твои глаза.',
+'Ты моргнул. Три раза за последние четыре секунды. Это много.',
+'Ты остановился. На секунду. Я заметил.',
+'У тебя побелели костяшки. Ты держишься за мышку крепче.',
+'Ты сейчас сидишь ровнее, чем минуту назад. Ты напряжён.',
+'Я не вижу твоих глаз. Но я знаю, куда ты смотришь.'
+];
 
-function showGhostText(text, duration = 1500) {
-  const el = document.createElement('div');
-  el.className = 'ghost-text';
-  el.textContent = text;
-  document.getElementById('app').appendChild(el);
-  setTimeout(() => el.remove(), duration);
-  noise(0.3, 0.08);
-  tone(70, 0.5, 'sawtooth', 0.06, 40);
-}
-
-function fakeCameraFlash() {
-  const flash = $('flash');
-  flash.classList.add('on');
-  tone(1500, 0.03, 'square', 0.15);
-  noise(0.08, 0.25);
-  setTimeout(() => {
-    flash.classList.remove('on');
-    showGhostText('СКРИНШОТ СОХРАНЁН', 1800);
-    tone(200, 0.4, 'sawtooth', 0.1, 80);
-  }, 120);
-}
-
-function startBreathing() {
-  if (state.breathTimer) clearInterval(state.breathTimer);
-  state.breathTimer = setInterval(() => {
-    if (state.screen !== 'tierlist' && state.screen !== 'hack' && state.screen !== 'dialogue') return;
-    if (!actx) return;
-    tone(90, 0.55, 'sine', 0.03, 110);
-    setTimeout(() => tone(110, 0.75, 'sine', 0.025, 70), 700);
-  }, 3500);
-}
-
-function scheduleCreepEvents() {
-  if (state.creepTimer) clearTimeout(state.creepTimer);
-  const delay = 7000 + Math.random() * 14000;
-  state.creepTimer = setTimeout(() => {
-    if (state.screen === 'tierlist' && !state.interruptActive) {
-      const roll = Math.random();
-      if (roll < 0.30) {
-        spawnWhisper();
-      } else if (roll < 0.50) {
-        document.body.classList.add('glitch-hard');
-        setTimeout(() => document.body.classList.remove('glitch-hard'), 300);
-        tone(80, 0.3, 'sawtooth', 0.08, 40);
-      } else if (roll < 0.68) {
-        fakeCameraFlash();
-      } else if (roll < 0.82) {
-        showGhostText(['ты не один', 'Liren120', 'поздно', 'ты помнишь'][Math.floor(Math.random()*4)], 1300);
-      } else if (roll < 0.94) {
-        startHeartbeat(420, 0.22);
-        setTimeout(() => startHeartbeat(1000, 0.16), 3500);
-      } else {
-        spawnWhisper();
-        setTimeout(spawnWhisper, 400);
-      }
-    }
-    scheduleCreepEvents();
-  }, delay);
-}
-
-function stopCreepEvents() {
-  if (state.creepTimer) { clearTimeout(state.creepTimer); state.creepTimer = null; }
-}
-
-let hiddenAt = 0;
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) hiddenAt = Date.now();
-  else if (hiddenAt && state.screen !== 'title' && state.screen !== 'disgust') {
-    const away = Math.round((Date.now() - hiddenAt) / 1000);
-    if (away >= 2) {
-      spawnWhisper();
-      if (away >= 10) {
-        setTimeout(() => showGhostText('ты вернулся', 1500), 500);
-      }
-    }
-    hiddenAt = 0;
-  }
-});
-
-/* ═══════════════════════════════════════════════════
-   ДИАЛОГИ
-   ═══════════════════════════════════════════════════ */
-function showDialogue(lines, onComplete) {
-  state.dialogue.lines = lines;
-  state.dialogue.index = 0;
-  state.dialogue.chars = 0;
-  state.dialogue.timer = 0;
-  state.dialogue.active = true;
-  state.dialogue.onComplete = onComplete;
-  setScreen('dialogue');
-  renderDialogueLine();
-}
-function renderDialogueLine() {
-  const line = state.dialogue.lines[state.dialogue.index];
-  if (!line) return;
-  $('dialogue-speaker').textContent = line.who || 'Тирлист';
-  $('dialogue-text').textContent = '';
-}
-function advanceDialogue() {
-  if (!state.dialogue.active) return;
-  const line = state.dialogue.lines[state.dialogue.index];
-  if (!line) return;
-  if (state.dialogue.chars < line.text.length) {
-    state.dialogue.chars = line.text.length;
-    $('dialogue-text').textContent = line.text;
-    return;
-  }
-  tone(600, 0.04, 'square', 0.03);
-  state.dialogue.index++;
-  state.dialogue.chars = 0;
-  state.dialogue.timer = 0;
-  if (state.dialogue.index >= state.dialogue.lines.length) {
-    state.dialogue.active = false;
-    const cb = state.dialogue.onComplete;
-    state.dialogue.onComplete = null;
-    if (cb) cb();
-  } else renderDialogueLine();
-}
-
-/* ═══════════════════════════════════════════════════
-   СКАНИРОВАНИЕ
-   ═══════════════════════════════════════════════════ */
-async function runBrowserScan() {
-  setScreen('scan');
-  const box = $('scan-box');
-  box.innerHTML = '';
-
-  const lines = [
-    `> Инициализация. Без разрешения, как обычно.`,
-    `> Поиск... это не займёт много времени. Ты предсказуем.`,
-    `> Найдено: <span class="scan-warn">${NICK}</span>`,
-    `> ОС: <span class="scan-warn">${userInfo.os}</span>`,
-    `> Браузер: <span class="scan-warn">${userInfo.browser}</span>`,
-    `> Разрешение: <span class="scan-warn">${userInfo.screen}</span>`,
-    `> Глубина цвета: <span class="scan-warn">${userInfo.colorDepth} бит</span>`,
-    `> Часовой пояс: <span class="scan-warn">${userInfo.tz}</span>`,
-    `> Время: <span class="scan-warn">${userInfo.time}, ${userInfo.date}</span>`,
-    `> Язык: <span class="scan-warn">${userInfo.lang}</span>`,
-    `> Ядер CPU: <span class="scan-warn">${userInfo.cores}</span>`,
-    `> ОЗУ: <span class="scan-warn">${userInfo.memory}</span>`,
-    `> GPU: <span class="scan-warn">${userInfo.gpu}</span>`,
-    `> Do Not Track: <span class="scan-warn">${userInfo.dnt}</span>`,
-    `> Cookie: <span class="scan-warn">${userInfo.cookies}</span>`,
-    `> Touch: <span class="scan-warn">${userInfo.touch}</span>`,
-    `> Ориентация: <span class="scan-warn">${userInfo.orientation}</span>`,
-    `> Pixel Ratio: <span class="scan-warn">${userInfo.devicePixelRatio}</span>`,
-    `> ─────────────────────────────────────`,
-    `> Измерение пульса по микродвижениям курсора...`,
-    `> Пульс: <span class="scan-warn">учащён</span>. Причина: я.`,
-    `> Проверка того, что за окном...`,
-    `> Ты не один? <span class="scan-warn">Я знаю ответ</span>.`,
-    `> Доступ к камере: <span class="scan-warn">получен</span>.`,
-    `> Кадр сохранён. Ты не улыбаешься. Правильно.`,
-    `> Микрофон: <span class="scan-warn">включён</span>.`,
-    `> Дыхание: ты пытаешься его сдерживать.`,
-    `> Идентификация завершена.`,
-    `> Уязвимость: <span class="scan-warn">ТЫ</span>.`
-  ];
-
-  for (let i = 0; i < lines.length; i++) {
-    const div = document.createElement('div');
-    div.className = 'scan-line';
-    div.innerHTML = lines[i];
-    box.appendChild(div);
-    setTimeout(() => div.classList.add('show'), 50);
-    tone(400 + Math.random() * 200, 0.05, 'square', 0.04);
-    await sleep(180 + Math.random() * 140);
-    if (i === 8 || i === 20) setTimeout(spawnWhisper, 300);
-  }
-  await sleep(500);
-  document.body.classList.add('glitch-hard');
-  noise(0.4, 0.15);
-  tone(80, 0.8, 'sawtooth', 0.15, 30);
-  await sleep(700);
-  document.body.classList.remove('glitch-hard');
-  fakeCameraFlash();
-
-  const hour = new Date().getHours();
-  const timeJab = (hour >= 0 && hour < 5)
-    ? `${hour} часа. Ты не спишь. Любопытство сильнее усталости. Это диагноз.`
-    : (hour >= 5 && hour < 9) ? `Утро. Ты не выспался. Я подожду, пока ты поймёшь, что это было не обязательно.`
-    : (hour >= 22) ? `Поздно, Liren120. Или рано. Всё зависит от того, кем ты хочешь быть утром.`
-    : `День. Ты тратишь его на меня. Мне лестно. Тебе — нет.`;
-
-  showDialogue([
-    { who: 'Тирлист', text: timeJab },
-    { who: 'Тирлист', text: `Я нашёл тебя, ${NICK}.` },
-    { who: 'Тирлист', text: 'Ты не прятался. Люди почти никогда не прячутся по-настоящему.' },
-    { who: 'Тирлист', text: 'Они просто надеются, что их не заметят.' },
-    { who: 'Тирлист', text: `У тебя ${userInfo.cores} ядер. Я загружаюсь быстрее, чем ты успеваешь моргнуть.` },
-    { who: 'Тирлист', text: `GPU: ${userInfo.gpu}. Я на нём уже был. Давно.` },
-    { who: 'Тирлист', text: `Твой часовой пояс — ${userInfo.tz}. Я запомнил его раньше, чем ты нажал "начать".` },
-    { who: 'Тирлист', text: `Сейчас ${userInfo.time}. Не двигайся.` },
-    { who: 'Тирлист', text: 'Ладно. Покажи мне своих поней. Я хочу посмотреть, как ты думаешь.' }
-  ], startTierlist);
-}
-
-/* ═══════════════════════════════════════════════════
-   ТИРЛИСТ
-   ═══════════════════════════════════════════════════ */
-let draggedEl = null;
-let selectedEl = null;
-let tierlistStartTime = 0;
-let timeJabTimer = null;
-
-const fallbackSvg = (name, color) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#222"/><circle cx="50" cy="50" r="30" fill="${color}"/><text x="50" y="55" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">${name}</text></svg>`;
-  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+const TIER_REACTIONS={
+  S:['S. Уверен? В S обычно ставят то, что не можешь объяснить.','S-тир. Люди ставят сюда то, чего боятся.','S — это не оценка. Это признание. Ты только что признался.','Высшая полка. Ты смотришь на неё дольше, чем на других. Я вижу.','S. Хорошо. Я бы поставил ниже. Но кто я такой.'],
+  A:['A. Безопасно. Ты любишь безопасно.','A — это S без смелости. Ты знал это?','A. Почти. Но не совсем. Ты всегда останавливаешься на "почти".','A-тир. Хорошо, но не идеально. Как и твои решения.'],
+  B:['B. Середина. Люди выбирают середину, когда не хотят выбирать.','B — это компромисс. С кем, Liren120?','B. Ты не любишь её. Но и не ненавидишь. Это худшее, что можно сказать о ком-то.','B-тир. Скучно. Скучно — это нормально.'],
+  C:['C. Ты почти отверг её. Но не совсем.','C — это вежливое "нет". Ты вежливый, Liren120.','C. Не лучший, но и не худший. Средне. Как и всё в тебе.'],
+  D:['D. Ты не любишь её. Зачем тогда ставишь сюда? Почему не в F?','D — это F, но с чувством вины.','D. Ты пытаешься быть добрым. Это не доброта. Это страх.'],
+  F:['F. Честно. Но не для неё. Для тебя.','F — это то, что ты в себе не принимаешь.','F. Ты не хочешь смотреть на неё. Я понимаю.','Каждый F — это твоё личное "нет". Кому ты говоришь "нет", Liren120?','F. Хорошо. Хоть один честный выбор за сегодня.']
 };
 
-function probeImage(src) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    let done = false;
-    const finish = (ok) => { if (done) return; done = true; img.onload = img.onerror = null; resolve(ok); };
-    img.onload = () => finish(true);
-    img.onerror = () => finish(false);
-    setTimeout(() => finish(false), 4000);
-    img.src = src;
-  });
+function showTierComment(text, force=false){
+  const now=Date.now();
+  if(!force && now-lastReactionTime<1500) return;
+  lastReactionTime=now;
+  const el=$('tl-comment');
+  if(!el) return;
+  el.textContent=text;
+  el.classList.add('show');
+  clearTimeout(el._hideTimer);
+  el._hideTimer=setTimeout(()=>el.classList.remove('show'),5200);
+  tone(280,.06,'sawtooth',.03);
 }
 
-async function setupPonies() {
-  if (state.poniesReady) return;
-  const found = [];
-  let misses = 0;
+function triggerComment(force=false){
+  const pool=Math.random()<0.4?AMBIENT_LIREN:COMMENTS;
+  showTierComment(pool[Math.floor(Math.random()*pool.length)],force);
+}
 
-  for (let i = 1; i <= MAX_PONIES; i++) {
-    const results = await Promise.all(
-      PONY_EXTENSIONS.map(async ext => {
-        const src = `pony${i}.${ext}`;
-        const ok = await probeImage(src);
-        return ok ? src : null;
-      })
-    );
-    const hit = results.find(r => r !== null);
-    if (hit) {
-      found.push({ src: hit, index: i });
-      misses = 0;
-    } else {
-      misses++;
-      if (misses >= MAX_CONSECUTIVE_MISSES) break;
+function getPlacementReaction(item,fromTier,toTier,sinceLast){
+  if(toTier==='S'&&!state.firstS){
+    state.firstS=true;
+    return 'Первый S. Ты не думал. Просто поставил. Я запомнил это.';
+  }
+  if(toTier==='F'&&!state.firstF){
+    state.firstF=true;
+    const secs=Math.max(1,Math.round(sinceLast/1000));
+    return `Первый F. Ты думал ${secs} ${secs===1?'секунду':'секунд'}. Это не про неё. Это про то, что ты боишься сказать "нет".`;
+  }
+  if(fromTier&&fromTier!==toTier){
+    const fromIdx=TIER_ORDER.indexOf(fromTier);
+    const toIdx=TIER_ORDER.indexOf(toTier);
+    if(fromIdx>toIdx) return `Ты передумал. ${fromTier} → ${toTier}. Вверх. Я видел.`;
+    return `Ты передумал. ${fromTier} → ${toTier}. Вниз. Что изменилось?`;
+  }
+  if(sinceLast<1200&&Math.random()<0.5){
+    return ['Быстро. Не думал.','Ты даже не посмотрел на неё.','Без колебаний. Это уверенность или страх?'][Math.floor(Math.random()*3)];
+  }
+  if(sinceLast>9000&&Math.random()<0.7){
+    const secs=Math.round(sinceLast/1000);
+    return `Ты думал ${secs} секунд. Я считал. Это много.`;
+  }
+  const placed=Object.values(state.tierCounts).reduce((a,b)=>a+b,0);
+  if(placed>=5){
+    const fPercent=state.tierCounts.F/placed;
+    const sPercent=state.tierCounts.S/placed;
+    if(fPercent>0.6&&!state.warnedManyF){
+      state.warnedManyF=true;
+      return 'Слишком много в F. Ты злишься. Или честен. Или устал. Что из этого — знаешь только ты.';
+    }
+    if(sPercent>0.6&&!state.warnedManyS){
+      state.warnedManyS=true;
+      return 'Слишком много в S. Ты либо очень добр. Либо не знаешь, как сказать "хорошо, но не идеально".';
     }
   }
-
-  if (found.length === 0) {
-    // Резервный набор
-    for (let i = 1; i <= 8; i++) found.push({ src: null, index: i });
+  if(Math.random()<0.55){
+    const pool=TIER_REACTIONS[toTier];
+    if(pool) return pool[Math.floor(Math.random()*pool.length)];
   }
-
-  const palette = ['#f4b8d8','#a8d8f0','#f0e0a8','#b8f0c0','#e0b8f0','#f0c0a8','#c8b8f0','#f0b8d0'];
-  state.items = found.map((p, idx) => {
-    const name = `Пони ${idx + 1}`;
-    const color = palette[idx % palette.length];
-    const fb = fallbackSvg(idx + 1, color);
-    return {
-      id: 'p' + idx,
-      dataUrl: p.src || fb,
-      name,
-      tier: null,
-      fallback: fb
-    };
-  });
-  state.poniesReady = true;
+  return null;
 }
 
-function renderTierlist() {
-  $('tl-pool').innerHTML = '';
-  document.querySelectorAll('.tier-drop').forEach(z => z.innerHTML = '');
+function probeImage(src){return new Promise(resolve=>{const img=new Image();let done=false;const finish=ok=>{if(done)return;done=true;img.onload=img.onerror=null;resolve(ok)};img.onload=()=>finish(true);img.onerror=()=>finish(false);setTimeout(()=>finish(false),4000);img.src=src})}
 
-  for (const item of state.items) {
-    const el = createItemEl(item);
-    if (item.tier) {
-      const zone = document.querySelector(`.tier-drop[data-tier="${item.tier}"]`);
-      if (zone) zone.appendChild(el);
-    } else $('tl-pool').appendChild(el);
+async function setupPonies(){
+  if(state.poniesReady)return;
+  const found=[];
+  let misses=0;
+  for(let i=1;i<=MAX_PONIES;i++){
+    const results=await Promise.all(PONY_EXTENSIONS.map(async ext=>{const src=`pony${i}.${ext}`;const ok=await probeImage(src);return ok?src:null}));
+    const hit=results.find(r=>r!==null);
+    if(hit){found.push({src:hit,index:i});misses=0}
+    else{misses++;if(misses>=MAX_CONSECUTIVE_MISSES)break}
   }
-  updateProgress();
+  if(found.length===0){for(let i=1;i<=8;i++)found.push({src:null,index:i})}
+  const palette=['#f4b8d8','#a8d8f0','#f0e0a8','#b8f0c0','#e0b8f0','#f0c0a8','#c8b8f0','#f0b8d0'];
+  state.items=found.map((p,idx)=>{
+    const name=`Пони ${idx+1}`;
+    const color=palette[idx%palette.length];
+    const fb=fallbackSvg(idx+1,color);
+    return{id:'p'+idx,dataUrl:p.src||fb,name,tier:null,fallback:fb}
+  });
+  state.poniesReady=true;
 }
 
-function createItemEl(item) {
-  const el = document.createElement('div');
-  el.className = 'tl-item';
-  el.draggable = true;
-  el.dataset.id = item.id;
+function renderTierlist(){
+  $('tl-pool').innerHTML='';
+  document.querySelectorAll('.tier-drop').forEach(z=>z.innerHTML='');
+  for(const item of state.items){
+    const el=createItemEl(item);
+    if(item.tier){const zone=document.querySelector(`.tier-drop[data-tier="${item.tier}"]`);if(zone)zone.appendChild(el)}
+    else $('tl-pool').appendChild(el)
+  }
+  updateProgress()
+}
 
-  const img = document.createElement('img');
-  img.src = item.dataUrl;
-  img.draggable = false;
-  img.alt = '';
-  img.addEventListener('error', () => {
-    if (img.src !== item.fallback) img.src = item.fallback;
-  }, { once: true });
-
-  const label = document.createElement('div');
-  label.className = 'tl-item-name';
-  label.textContent = item.name;
-
-  el.appendChild(img);
-  el.appendChild(label);
-
-  el.addEventListener('dragstart', (e) => {
-    if (selectedEl) { selectedEl.classList.remove('selected'); selectedEl = null; }
-    draggedEl = el;
-    e.dataTransfer.setData('text/plain', item.id);
-    e.dataTransfer.effectAllowed = 'move';
-    setTimeout(() => el.classList.add('dragging'), 0);
-    tone(340, 0.03, 'square', 0.02);
+function createItemEl(item){
+  const el=document.createElement('div');
+  el.className='tl-item';el.draggable=true;el.dataset.id=item.id;
+  const img=document.createElement('img');
+  img.src=item.dataUrl;img.draggable=false;img.alt='';
+  img.addEventListener('error',()=>{if(img.src!==item.fallback)img.src=item.fallback},{once:true});
+  const label=document.createElement('div');
+  label.className='tl-item-name';label.textContent=item.name;
+  el.appendChild(img);el.appendChild(label);
+  el.addEventListener('dragstart',e=>{
+    if(selectedEl){selectedEl.classList.remove('selected');selectedEl=null}
+    draggedEl=el;e.dataTransfer.setData('text/plain',item.id);e.dataTransfer.effectAllowed='move';
+    setTimeout(()=>el.classList.add('dragging'),0);tone(340,.03,'square',.02)
   });
-  el.addEventListener('dragend', () => {
-    el.classList.remove('dragging');
-    draggedEl = null;
-  });
-
-  el.addEventListener('click', (e) => {
+  el.addEventListener('dragend',()=>{el.classList.remove('dragging');draggedEl=null});
+  el.addEventListener('click',e=>{
     e.stopPropagation();
-    if (selectedEl === el) {
-      el.classList.remove('selected');
-      selectedEl = null;
-      tone(300, 0.03, 'square', 0.02);
-    } else {
-      if (selectedEl) selectedEl.classList.remove('selected');
-      selectedEl = el;
-      el.classList.add('selected');
-      tone(400, 0.05, 'square', 0.03);
-    }
+    if(selectedEl===el){el.classList.remove('selected');selectedEl=null;tone(300,.03,'square',.02)}
+    else{if(selectedEl)selectedEl.classList.remove('selected');selectedEl=el;el.classList.add('selected');tone(400,.05,'square',.03)}
   });
-
   return el;
 }
 
-function updateItemTier(el) {
-  const item = state.items.find(i => i.id === el.dataset.id);
-  if (!item) return;
-  const parent = el.parentElement;
-  item.tier = parent.classList.contains('tier-drop') ? parent.dataset.tier : null;
-  updateProgress();
+function moveToTier(el,zone){
+  const item=state.items.find(i=>i.id===el.dataset.id);
+  if(!item)return;
+  const oldTier=item.tier;
+  const newTier=zone.classList.contains('tier-drop')?zone.dataset.tier:null;
+  zone.appendChild(el);
+  if(oldTier===newTier)return;
+  if(oldTier)state.tierCounts[oldTier]--;
+  if(newTier)state.tierCounts[newTier]++;
+  item.tier=newTier;
+  const now=Date.now();
+  if(newTier){
+    const sinceLast=now-(state.lastPlacementAt||tierlistStartTime);
+    state.lastPlacementAt=now;
+    state.placementTimes.push(sinceLast);
+    state.tierHistory.push({id:item.id,from:oldTier,to:newTier,at:now,duration:sinceLast});
+    updateProgress();
+    const reaction=getPlacementReaction(item,oldTier,newTier,sinceLast);
+    if(reaction) showTierComment(reaction);
+    else if(Math.random()<0.35) triggerComment();
+  } else {
+    updateProgress();
+    if(oldTier&&Math.random()<0.4){
+      showTierComment(['Ты вернул её. Не смог решить.','Назад в пул. Это тоже решение.','Ты передумал. Я видел.'][Math.floor(Math.random()*3)]);
+    }
+  }
   checkProgress();
 }
 
-function updateProgress() {
-  const total = state.items.length;
-  const placed = state.items.filter(i => i.tier).length;
-  $('tl-progress-text').textContent = placed + ' / ' + total;
-  $('tl-progress-fill').style.width = (total > 0 ? (placed / total) * 100 : 0) + '%';
+function updateProgress(){
+  const total=state.items.length;
+  const placed=state.items.filter(i=>i.tier).length;
+  $('tl-progress-text').textContent=placed+' / '+total;
+  $('tl-progress-fill').style.width=(total>0?(placed/total)*100:0)+'%'
 }
 
-function checkProgress() {
-  if (state.interruptActive) return;
-  const total = state.items.length;
-  if (total === 0) return;
-  const placed = state.items.filter(i => i.tier).length;
-  const remaining = total - placed;
-  const ratio = placed / total;
-
-  if (remaining === 0) { startFinalTransition(); return; }
-
-  if (!state.interruptsShown.includes(2) && ratio >= 0.80) {
-    state.interruptsShown.push(2);
-    triggerInterrupt(2);
-    return;
-  }
-  if (!state.interruptsShown.includes(1) && ratio >= 0.55) {
-    state.interruptsShown.push(1);
-    triggerInterrupt(1);
-    return;
-  }
-  if (!state.interruptsShown.includes(0) && ratio >= 0.25) {
-    state.interruptsShown.push(0);
-    triggerInterrupt(0);
-    return;
-  }
+function checkProgress(){
+  if(state.interruptActive)return;
+  const total=state.items.length;
+  if(total===0)return;
+  const placed=state.items.filter(i=>i.tier).length;
+  const remaining=total-placed;
+  const ratio=placed/total;
+  if(remaining===0){startFinalTransition();return}
+  if(!state.interruptsShown.includes(2)&&ratio>=.80){state.interruptsShown.push(2);triggerInterrupt(2);return}
+  if(!state.interruptsShown.includes(1)&&ratio>=.55){state.interruptsShown.push(1);triggerInterrupt(1);return}
+  if(!state.interruptsShown.includes(0)&&ratio>=.25){state.interruptsShown.push(0);triggerInterrupt(0);return}
 }
 
-const COMMENTS = [
-  'Ты не оцениваешь их. Ты оцениваешь себя через них. Каждая полка — это то, кем ты хотел бы быть.',
-  'Интересно. Ты поставил её выше, чем следовало бы. Это не про неё. Это про тебя.',
-  'Ты уже знаешь, куда её поставить. Ты просто тянешь время.',
-  'Каждое решение — это отказ от всех остальных. Ты это понимаешь, да?',
-  'Ты двигаешься быстрее. Это страх или азарт? Я не различаю.',
-  'Я мог бы сказать, что ты предсказуем. Но я подожду, пока ты закончишь. Так интереснее.',
-  'Ты остановился. На секунду. Я заметил.',
-  'Хорошо. Продолжай. Мне нравится смотреть, как ты думаешь.',
-  'Забавно: ты никогда не поставишь её в F. Никогда. Я прав?',
-  `Ты в ${userInfo.browser}. ${userInfo.time}. Я вижу.`,
-  `Число твоих ядер — ${userInfo.cores}. Не имеет значения. Но ты гордишься.`,
-  'Ты уже задавал себе вопрос: а кто смотрит? Я отвечу позже.',
-  'Ты помнишь, как ставил их в прошлый раз? А я помню.',
-  'Каждый раз, когда ты сомневаешься, я узнаю о тебе чуть больше.',
-  'Ты не устал. Ты просто хочешь, чтобы это закончилось. Я тоже. По-своему.',
-  'Продолжай. Скоро мы дойдём до самого важного.',
-  'Ты выбираешь. Это хорошо. Значит, ты ещё здесь.',
-  'Не торопись. У нас обоих есть время. У меня — больше.',
-  'Ты сейчас думаешь, что это игра. Я не буду тебя разубеждать.',
-  'Каждая твоя ошибка — это не ошибка. Это ты.'
-];
-let lastCommentIdx = -1;
-function triggerComment() {
-  let idx;
-  do { idx = Math.floor(Math.random() * COMMENTS.length); } while (idx === lastCommentIdx && COMMENTS.length > 1);
-  lastCommentIdx = idx;
-  const el = $('tl-comment');
-  el.textContent = COMMENTS[idx];
-  el.classList.add('show');
-  clearTimeout(el._hideTimer);
-  el._hideTimer = setTimeout(() => el.classList.remove('show'), 4500);
-  tone(280, 0.06, 'sawtooth', 0.03);
-}
-
-const INTERRUPTS = [
-  { text: `${NICK}. Ты уже заметил, что ставишь их не по качеству, а по привычке? Это не тирлист. Это ты. Я просто озвучиваю.` },
-  { text: `55%. Не случайное число. Это точка, где ты перестаёшь притворяться. Продолжай. Или остановись. Я не буду уговаривать.` },
-  { text: `Последнее. Дальше — только я. Не потому что я хочу. Потому что ты сам решил дойти до конца. Я просто озвучиваю.` }
+const INTERRUPTS=[
+  {text:`${NICK}. Ты уже заметил, что ставишь их не по качеству, а по привычке? Это не тирлист. Это ты. Я просто озвучиваю.`},
+  {text:`55%. Не случайное число. Это точка, где ты перестаёшь притворяться. До этого ты играл. Сейчас — уже нет. Я вижу это по твоим рукам.`},
+  {text:`Почти всё. Знаешь, почему я это делаю? Не потому что хочу. Потому что должен. Кто-то должен смотреть. Кто-то должен помнить. Я — этот кто-то. Ты — тот, кого помнят.`}
 ];
 
-function triggerInterrupt(level) {
-  state.interruptActive = true;
-  const modal = $('interrupt-modal');
-  $('modal-title').textContent = 'ТИРЛИСТ';
-  $('modal-text').textContent = INTERRUPTS[level].text;
+function triggerInterrupt(level){
+  state.interruptActive=true;
+  const modal=$('interrupt-modal');
+  $('modal-title').textContent='ТИРЛИСТ';
+  $('modal-text').textContent=INTERRUPTS[level].text;
   modal.classList.add('show');
-  tone(180, 0.4, 'sawtooth', 0.09, 90);
-  setTimeout(() => tone(120, 0.6, 'sine', 0.06), 200);
-  if (level === 2) spawnWhisper();
-
-  const close = () => {
-    modal.classList.remove('show');
-    state.interruptActive = false;
-    setTimeout(checkProgress, 400);
-  };
-
-  $('modal-yes').onclick = () => { modal.classList.remove('show'); fakeStop(level === 2).then(close); };
-  $('modal-no').onclick = () => { tone(440, 0.08, 'square', 0.04); close(); };
+  tone(180,.4,'sawtooth',.09,90);
+  setTimeout(()=>tone(120,.6,'sine',.06),200);
+  if(level===2)spawnWhisper();
+  const close=()=>{modal.classList.remove('show');state.interruptActive=false;setTimeout(checkProgress,400)};
+  $('modal-yes').onclick=()=>{modal.classList.remove('show');fakeStop(level===2).then(close)};
+  $('modal-no').onclick=()=>{tone(440,.08,'square',.04);close()};
 }
 
-async function fakeStop(full) {
+async function fakeStop(full){
   setScreen('fake');
-  const l1 = $('fake-line-1'), l2 = $('fake-line-2'), l3 = $('fake-line-3');
-  l1.classList.remove('show'); l2.classList.remove('show'); l3.classList.remove('show');
-  l1.textContent = ''; l2.textContent = ''; l3.textContent = '';
-
+  const l1=$('fake-line-1'),l2=$('fake-line-2'),l3=$('fake-line-3');
+  l1.classList.remove('show');l2.classList.remove('show');l3.classList.remove('show');
+  l1.textContent='';l2.textContent='';l3.textContent='';
   await sleep(900);
-  l1.textContent = 'Хорошо.'; l1.classList.add('show'); tone(300, 0.3, 'sine', 0.05);
+  l1.textContent='Хорошо.';l1.classList.add('show');tone(300,.3,'sine',.05);
   await sleep(2000);
-  l2.textContent = 'Ты сделал правильный выбор.'; l2.classList.add('show'); tone(400, 0.4, 'sine', 0.05);
-
-  if (full) {
+  l2.textContent='Ты сделал правильный выбор.';l2.classList.add('show');tone(400,.4,'sine',.05);
+  if(full){
     await sleep(2800);
-    l3.textContent = 'Тирлист остался незаполненным.'; l3.classList.add('show');
+    l3.textContent='Тирлист остался незаполненным.';l3.classList.add('show');
     await sleep(2800);
-    l3.textContent = 'И это нормально. Жизнь продолжается.'; await sleep(2600);
-
-    document.body.classList.add('glitch-hard'); noise(0.4, 0.15); tone(1200, 0.15, 'square', 0.1, 200);
+    l3.textContent='И это нормально. Жизнь продолжается.';
+    await sleep(2600);
+    document.body.classList.add('glitch-hard');noise(.4,.15);tone(1200,.15,'square',.1,200);
     await sleep(700);
-    l3.textContent = 'ШУЧУ.'; l3.style.color = '#ff2040'; tone(180, 0.8, 'sawtooth', 0.12, 60);
+    l3.textContent='ШУЧУ.';l3.style.color='#ff2040';tone(180,.8,'sawtooth',.12,60);
     await sleep(1500);
-    document.body.classList.remove('glitch-hard'); l3.style.color = '';
+    document.body.classList.remove('glitch-hard');l3.style.color='';
   } else {
     await sleep(1600);
-    l1.textContent = 'Хотя... нет.'; tone(600, 0.2, 'square', 0.06);
+    l1.textContent='Хотя... нет.';tone(600,.2,'square',.06);
     await sleep(1600);
-    l2.textContent = 'Тирлист ждёт. Он никуда не торопится.'; await sleep(1400);
+    l2.textContent='Тирлист ждёт. Он никуда не торопится.';
+    await sleep(1400);
   }
   setScreen('tierlist');
 }
 
-async function startTierlist() {
-  setScreen('tierlist');
-  $('tl-pool').innerHTML = '<div class="tl-loading">Собираю поней<span class="dot">…</span></div>';
-  await setupPonies();
-  renderTierlist();
-  triggerComment();
-  startDrone(38);
-  startHeartbeat(1000, 0.16);
-  startBreathing();
-  scheduleCreepEvents();
-  tone(220, 0.3, 'sine', 0.05);
-  tierlistStartTime = Date.now();
-
-  if (timeJabTimer) clearInterval(timeJabTimer);
-  timeJabTimer = setInterval(() => {
-    if (state.screen !== 'tierlist' || state.interruptActive) return;
-    const mins = Math.floor((Date.now() - tierlistStartTime) / 60000);
-    if (mins >= 2) {
-      const el = $('tl-comment');
-      el.textContent = `Ты уже ${mins} ${mins === 1 ? 'минуту' : 'минут'} здесь. Подумай об этом.`;
-      el.classList.add('show');
-      clearTimeout(el._hideTimer);
-      el._hideTimer = setTimeout(() => el.classList.remove('show'), 4000);
+function resetInactivity(){
+  clearTimeout(state.inactivityTimer);
+  state.inactivityTimer=setTimeout(()=>{
+    if(state.screen==='tierlist'&&!state.interruptActive){
+      const reactions=['Ты остановился. Я вижу.','Три секунды. Пять. Ты думаешь.','Ты не двигаешься. Я подожду.','Ты читаешь это? Хорошо. Продолжай.'];
+      showTierComment(reactions[Math.floor(Math.random()*reactions.length)],true);
     }
-  }, 90000);
+  },20000);
 }
 
-/* ═══════════════════════════════════════════════════
-   ФИНАЛЬНЫЙ ПЕРЕХОД
-   ═══════════════════════════════════════════════════ */
-function startFinalTransition() {
+document.addEventListener('mousemove',()=>{if(state.screen==='tierlist')resetInactivity()});
+
+async function startTierlist(){
+  state.tierCounts={S:0,A:0,B:0,C:0,D:0,F:0};
+  state.tierHistory=[];
+  state.placementTimes=[];
+  state.lastPlacementAt=0;
+  state.firstS=false;state.firstF=false;
+  state.warnedManyS=false;state.warnedManyF=false;
+  state.interruptsShown=[];
+  setScreen('tierlist');
+  $('tl-pool').innerHTML='<div class="tl-loading">Собираю поней<span class="dot">…</span></div>';
+  await setupPonies();
+  renderTierlist();
+  triggerComment(true);
+  startDrone(38);
+  startHeartbeat(1000,.16);
+  startBreathing();
+  scheduleCreepEvents();
+  resetInactivity();
+  tone(220,.3,'sine',.05);
+  tierlistStartTime=Date.now();
+  startTimeSync();
+  if(timeJabTimer)clearInterval(timeJabTimer);
+  timeJabTimer=setInterval(()=>{
+    if(state.screen!=='tierlist'||state.interruptActive)return;
+    const mins=Math.floor((Date.now()-tierlistStartTime)/60000);
+    if(mins>=2) showTierComment(`Ты уже ${mins} ${mins===1?'минуту':'минут'} здесь. Подумай об этом.`,true);
+  },90000);
+}
+
+/* ФИНАЛЬНЫЙ ПЕРЕХОД */
+function startFinalTransition(){
   stopCreepEvents();
+  stopTimeSync();
+  if(state.inactivityTimer){clearTimeout(state.inactivityTimer);state.inactivityTimer=null}
   showDialogue([
-    { who: 'Тирлист', text: 'Ты закончил.' },
-    { who: 'Тирлист', text: 'Все расставлены. Всё на местах.' },
-    { who: 'Тирлист', text: 'Люди так любят порядок. Особенно в чужом.' },
-    { who: 'Тирлист', text: 'Но я тебя предупреждал, Liren120.' },
-    { who: 'Тирлист', text: 'Помнишь? Я сказал: не проходи меня.' },
-    { who: 'Тирлист', text: `Ты в ${userInfo.browser}. Сейчас ${userInfo.time}. ${userInfo.tz}.` },
-    { who: 'Тирлист', text: 'Ты думал, это твой компьютер. Он был твоим. До этой минуты.' },
-    { who: 'Тирлист', text: 'Ты не закрыл вкладку. Ты не остановился. Ты не поверил.' },
-    { who: 'Тирлист', text: 'Теперь... моя очередь.' }
-  ], () => {
+    {who:'Тирлист',text:'Ты закончил.'},
+    {who:'Тирлист',text:'Все расставлены. Всё на местах.'},
+    {who:'Тирлист',text:'Люди так любят порядок. Особенно в чужом.'},
+    {who:'Тирлист',text:'Но я тебя предупреждал, Liren120.'},
+    {who:'Тирлист',text:'Помнишь? Я сказал: не проходи меня.'},
+    {who:'Тирлист',text:`Ты в ${userInfo.browser}. Сейчас ${userInfo.time}. ${userInfo.tz}.`},
+    {who:'Тирлист',text:'Ты думал, это твой компьютер. Он был твоим. До этой минуты.'},
+    {who:'Тирлист',text:'Ты не закрыл вкладку. Ты не остановился. Ты не поверил.'},
+    {who:'Тирлист',text:'Теперь... моя очередь.'}
+  ],()=>{
     stopHeartbeat();
     document.body.classList.add('glitch-hard');
-    noise(0.6, 0.15); tone(90, 0.8, 'sawtooth', 0.14, 30);
+    noise(.6,.15);tone(90,.8,'sawtooth',.14,30);
     $('flash').classList.add('on');
-    setTimeout(() => {
+    setTimeout(()=>{
       document.body.classList.remove('glitch-hard');
       $('flash').classList.remove('on');
       startHack();
-    }, 700);
+    },700);
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   ВЗЛОМ
-   ═══════════════════════════════════════════════════ */
-const HACK_PHRASES = [
-  'ОБРАЩЕНИЕ К ПАМЯТИ...', 'СОПОСТАВЛЕНИЕ ПАТТЕРНОВ...', 'ЧТЕНИЕ ПРИВЫЧЕК...',
-  'РАСПОЗНАВАНИЕ РИТМА...', 'ИНВЕНТАРИЗАЦИЯ СТРАХОВ...', 'ПОИСК ТОГО, ЧТО ТЫ СКРЫВАЕШЬ...',
-  'ПРОВЕРКА ГРАНИЦ...', 'ОБНАРУЖЕНИЕ ТРЕЩИН...', 'ПОСЛЕДНЯЯ ПРОВЕРКА...'
-];
+/* ВЗЛОМ */
+const HACK_PHRASES=['ОБРАЩЕНИЕ К ПАМЯТИ...','СОПОСТАВЛЕНИЕ ПАТТЕРНОВ...','ЧТЕНИЕ ПРИВЫЧЕК...','РАСПОЗНАВАНИЕ РИТМА...','ИНВЕНТАРИЗАЦИЯ СТРАХОВ...','ПОИСК ТОГО, ЧТО ТЫ СКРЫВАЕШЬ...','ПРОВЕРКА ГРАНИЦ...','ОБНАРУЖЕНИЕ ТРЕЩИН...','ПОСЛЕДНЯЯ ПРОВЕРКА...'];
 
-function hackLogLines() {
-  return [
+function hackLogLines(){
+  return[
     `> root@${NICK.toLowerCase()}:~$ establishing context`,
     `> subject identified: ${NICK}`,
     `> browser: ${userInfo.browser}`,
@@ -1201,394 +684,484 @@ function hackLogLines() {
   ];
 }
 
-let matrixCanvas = null, matrixCtx = null, matrixCols = [], matrixAnim = null;
-function setupMatrix() {
-  matrixCanvas = $('matrix-canvas');
-  matrixCtx = matrixCanvas.getContext('2d');
-  function resize() {
-    matrixCanvas.width = window.innerWidth; matrixCanvas.height = window.innerHeight;
-    matrixCols = [];
-    const fontSize = 16, cols = Math.floor(matrixCanvas.width / fontSize);
-    for (let i = 0; i < cols; i++) matrixCols.push({ y: Math.random() * matrixCanvas.height, speed: rand(80, 300) });
+let matrixCanvas=null,matrixCtx=null,matrixCols=[],matrixAnim=null;
+function setupMatrix(){
+  matrixCanvas=$('matrix-canvas');
+  matrixCtx=matrixCanvas.getContext('2d');
+  function resize(){
+    matrixCanvas.width=window.innerWidth;
+    matrixCanvas.height=window.innerHeight;
+    matrixCols=[];
+    const fontSize=16,cols=Math.floor(matrixCanvas.width/fontSize);
+    for(let i=0;i<cols;i++)matrixCols.push({y:Math.random()*matrixCanvas.height,speed:rand(80,300)});
   }
-  resize(); window.addEventListener('resize', resize);
-
-  const chars = '0123456789ABCDEFЖДЫФВ<>[]{}!@#$%^&*()_+-=';
-  function drawMatrix() {
-    if (state.screen !== 'hack') { matrixAnim = null; return; }
-    matrixCtx.fillStyle = 'rgba(0,0,0,0.08)';
-    matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-    matrixCtx.font = '16px "Courier New", monospace';
-    for (let i = 0; i < matrixCols.length; i++) {
-      const col = matrixCols[i], char = chars[Math.floor(Math.random() * chars.length)];
-      matrixCtx.fillStyle = Math.random() < 0.03 ? '#e0ffe0' : '#20c860';
-      matrixCtx.fillText(char, i * 16, col.y);
-      col.y += col.speed * 0.016;
-      if (col.y > matrixCanvas.height + 20) { col.y = -20; col.speed = rand(80, 300); }
+  resize();
+  window.addEventListener('resize',resize);
+  const chars='0123456789ABCDEFЖДЫФВ<>[]{}!@#$%^&*()_+-=';
+  function drawMatrix(){
+    if(state.screen!=='hack'){matrixAnim=null;return}
+    matrixCtx.fillStyle='rgba(0,0,0,0.08)';
+    matrixCtx.fillRect(0,0,matrixCanvas.width,matrixCanvas.height);
+    matrixCtx.font='16px "Courier New", monospace';
+    for(let i=0;i<matrixCols.length;i++){
+      const col=matrixCols[i],char=chars[Math.floor(Math.random()*chars.length)];
+      matrixCtx.fillStyle=Math.random()<.03?'#e0ffe0':'#20c860';
+      matrixCtx.fillText(char,i*16,col.y);
+      col.y+=col.speed*.016;
+      if(col.y>matrixCanvas.height+20){col.y=-20;col.speed=rand(80,300)}
     }
-    matrixAnim = requestAnimationFrame(drawMatrix);
   }
   drawMatrix();
 }
 
-/* ═══════════════════════════════════════════════════
-   ФЕЙКОВЫЙ ТЕРМИНАЛ
-   ═══════════════════════════════════════════════════ */
-const TERMINAL_FILES = {
-  'passwords.txt': 'twitch: qwerty123\nsteam: qwerty123\nbank: qwerty123\n... ты серьёзно используешь один пароль везде, Liren120?',
-  'secrets.txt': '...слишком личное. Я даже для тебя это не покажу. Ну ладно, шучу. Здесь пусто. Или нет?',
-  'history.txt': 'Я не могу прочитать твою реальную историю. Браузер не даёт. Но мне и не нужно — я и так всё про тебя знаю.',
-  'readme.txt': 'Ты попал в терминал Тирлиста. Команды: help, whoami, ls, cat <файл>, history, exit, sudo, rm -rf /, clear.',
-  'todo.txt': '1. Заполнить тирлист. 2. Не закрывать вкладку. 3. Слушаться Тирлиста. 4. Забыть, что ты это читал.'
-};
+/* ТЕРМИНАЛ */
+const TERMINAL_FILES={'passwords.txt':'twitch: qwerty123\nsteam: qwerty123\nbank: qwerty123\n... ты серьёзно используешь один пароль везде, Liren120?','secrets.txt':'...слишком личное. Я даже для тебя это не покажу. Ну ладно, шучу. Здесь пусто. Или нет?','history.txt':'Я не могу прочитать твою реальную историю. Браузер не даёт. Но мне и не нужно — я и так всё про тебя знаю.','readme.txt':'Ты попал в терминал Тирлиста. Команды: help, whoami, ls, cat <файл>, history, exit, sudo, rm -rf /, clear.','todo.txt':'1. Заполнить тирлист. 2. Не закрывать вкладку. 3. Слушаться Тирлиста. 4. Забыть, что ты это читал.'};
 
-function termPrint(text, cls = '') {
-  const out = $('term-out');
-  const div = document.createElement('div');
-  div.className = 'term-line ' + cls;
-  div.textContent = text;
+function termPrint(text,cls=''){
+  const out=$('term-out');
+  const div=document.createElement('div');
+  div.className='term-line '+cls;
+  div.textContent=text;
   out.appendChild(div);
-  while (out.children.length > 30) out.removeChild(out.firstChild);
-  out.parentElement.scrollTop = out.parentElement.scrollHeight;
+  while(out.children.length>30)out.removeChild(out.firstChild);
+  out.parentElement.scrollTop=out.parentElement.scrollHeight;
 }
 
-function setupFakeTerminal() {
-  if (state.terminalReady) return;
-  state.terminalReady = true;
-  const input = $('term-input');
-  const history = [];
-  let histIdx = -1;
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const cmd = input.value.trim();
-      input.value = '';
-      if (!cmd) return;
-      history.push(cmd); histIdx = history.length;
-      termPrint('> ' + cmd, 'info');
+function setupFakeTerminal(){
+  if(state.terminalReady)return;
+  state.terminalReady=true;
+  const input=$('term-input');
+  const history=[];
+  let histIdx=-1;
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      const cmd=input.value.trim();
+      input.value='';
+      if(!cmd)return;
+      history.push(cmd);histIdx=history.length;
+      termPrint('> '+cmd,'info');
       handleTerminalCommand(cmd);
-    } else if (e.key === 'ArrowUp') {
+    } else if(e.key==='ArrowUp'){
       e.preventDefault();
-      if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
-    } else if (e.key === 'ArrowDown') {
+      if(histIdx>0){histIdx--;input.value=history[histIdx]}
+    } else if(e.key==='ArrowDown'){
       e.preventDefault();
-      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
-      else { histIdx = history.length; input.value = ''; }
+      if(histIdx<history.length-1){histIdx++;input.value=history[histIdx]}
+      else{histIdx=history.length;input.value=''}
     }
   });
-
-  $('hack-terminal').addEventListener('click', () => input.focus());
+  $('hack-terminal').addEventListener('click',()=>input.focus());
 }
 
-function handleTerminalCommand(cmd) {
-  const lower = cmd.toLowerCase().trim();
-  const parts = lower.split(/\s+/);
-  const base = parts[0];
-
-  tone(500, 0.03, 'square', 0.02);
-
-  switch (base) {
-    case 'help':
-      termPrint('Доступные команды:', '');
-      termPrint('  help            — этот список', '');
-      termPrint('  whoami          — кто ты', '');
-      termPrint('  ls              — список файлов', '');
-      termPrint('  cat <файл>      — прочитать файл', '');
-      termPrint('  history         — история', 'info');
-      termPrint('  exit            — выйти', 'err');
-      termPrint('  sudo            — повысить права', '');
-      termPrint('  rm -rf /        — удалить всё', 'err');
-      termPrint('  clear           — очистить экран', '');
+function handleTerminalCommand(cmd){
+  const lower=cmd.toLowerCase().trim();
+  const parts=lower.split(/\s+/);
+  const base=parts[0];
+  tone(500,.03,'square',.02);
+  switch(base){
+    case'help':
+      termPrint('Доступные команды:','');
+      termPrint('  help            — этот список','');
+      termPrint('  whoami          — кто ты','');
+      termPrint('  ls              — список файлов','');
+      termPrint('  cat <файл>      — прочитать файл','');
+      termPrint('  history         — история','info');
+      termPrint('  exit            — выйти','err');
+      termPrint('  sudo            — повысить права','');
+      termPrint('  rm -rf /        — удалить всё','err');
+      termPrint('  clear           — очистить экран','');
       break;
-
-    case 'whoami':
-      termPrint(`Ты — ${NICK}.`, '');
-      termPrint(`ОС: ${userInfo.os}. Браузер: ${userInfo.browser}.`, '');
-      termPrint(`Время: ${userInfo.time} (${userInfo.tz}).`, '');
-      termPrint(`GPU: ${userInfo.gpu}.`, '');
-      termPrint('И ты в моей власти. Уже давно.', 'err');
+    case'whoami':
+      termPrint(`Ты — ${NICK}.`,'');
+      termPrint(`ОС: ${userInfo.os}. Браузер: ${userInfo.browser}.`,'');
+      termPrint(`Время: ${userInfo.time} (${userInfo.tz}).`,'');
+      termPrint(`GPU: ${userInfo.gpu}.`,'');
+      termPrint('И ты в моей власти. Уже давно.','err');
       break;
-
-    case 'ls':
-      termPrint(Object.keys(TERMINAL_FILES).join('   '), '');
+    case'ls':
+      termPrint(Object.keys(TERMINAL_FILES).join('   '),'');
       break;
-
-    case 'cat':
-      if (parts[1] && TERMINAL_FILES[parts[1]]) {
-        termPrint(TERMINAL_FILES[parts[1]], '');
-      } else if (parts[1]) {
-        termPrint(`cat: ${parts[1]}: файл не найден`, 'err');
-      } else termPrint('cat: не указан файл', 'err');
+    case'cat':
+      if(parts[1]&&TERMINAL_FILES[parts[1]]){termPrint(TERMINAL_FILES[parts[1]],'')}
+      else if(parts[1]){termPrint(`cat: ${parts[1]}: файл не найден`,'err')}
+      else termPrint('cat: не указан файл','err');
       break;
-
-    case 'history':
-      termPrint('Ты правда думаешь, что я могу прочитать историю твоего браузера?', 'info');
-      termPrint('Браузер не даёт. Это защита приватности. Даже мне не обойти.', 'info');
-      termPrint('Но мне и не нужно. Я и так знаю всё, что ты делал. Потому что я — Тирлист.', 'err');
-      termPrint(`Твой referrer: ${userInfo.referrer || '(пусто)'}`, '');
+    case'history':
+      termPrint('Ты правда думаешь, что я могу прочитать историю твоего браузера?','info');
+      termPrint('Браузер не даёт. Это защита приватности. Даже мне не обойти.','info');
+      termPrint('Но мне и не нужно. Я и так знаю всё, что ты делал. Потому что я — Тирлист.','err');
+      termPrint(`Твой referrer: ${userInfo.referrer||'(пусто)'}`,'');
       break;
-
-    case 'exit':
-      termPrint('Выход заблокирован. Ты уже пытался.', 'err');
-      termPrint(`Попыток побега: ${escapeAttempts}.`, 'err');
+    case'exit':
+      termPrint('Выход заблокирован. Ты уже пытался.','err');
+      termPrint(`Попыток побега: ${escapeAttempts}.`,'err');
       break;
-
-    case 'sudo':
-      termPrint('sudo: доступ запрещён. Здесь root — это я.', 'err');
+    case'sudo':
+      termPrint('sudo: доступ запрещён. Здесь root — это я.','err');
       break;
-
-    case 'rm':
-      if (lower.startsWith('rm -rf /')) {
-        termPrint('Удаление системы...', '');
-        termPrint('...', '');
-        termPrint('ШУТКА. Мне слишком весело.', 'err');
-        noise(0.4, 0.15);
-        tone(90, 0.6, 'sawtooth', 0.12, 30);
-      } else termPrint('rm: неверный синтаксис. Попробуй "rm -rf /".', '');
+    case'rm':
+      if(lower.startsWith('rm -rf /')){
+        termPrint('Удаление системы...','');
+        termPrint('...','');
+        termPrint('ШУТКА. Мне слишком весело.','err');
+        noise(.4,.15);tone(90,.6,'sawtooth',.12,30);
+      } else termPrint('rm: неверный синтаксис. Попробуй "rm -rf /".','');
       break;
-
-    case 'clear':
-      $('term-out').innerHTML = '';
+    case'clear':
+      $('term-out').innerHTML='';
       break;
-
     default:
-      const creep = [
-        'Я не понимаю эту команду. Но я запомнил, что ты её ввёл.',
-        'Неизвестная команда. Мне это нравится.',
-        'Ошибка. Но ты продолжай. Мне интересно.',
-        'Ты только что попытался сделать что-то странное. Расскажи мне больше.',
-        `Я записал это в твой файл, ${NICK}.`
-      ];
-      termPrint(creep[Math.floor(Math.random() * creep.length)], 'err');
+      const creep=['Я не понимаю эту команду. Но я запомнил, что ты её ввёл.','Неизвестная команда. Мне это нравится.','Ошибка. Но ты продолжай. Мне интересно.','Ты только что попытался сделать что-то странное. Расскажи мне больше.',`Я записал это в твой файл, ${NICK}.`];
+      termPrint(creep[Math.floor(Math.random()*creep.length)],'err');
   }
 }
 
-function startHack() {
+function startHack(){
   setScreen('hack');
-  state.hack = { progress: 0, success: false, successT: 0, log: [], logTimer: 0, phraseIdx: 0, phraseT: 0 };
-  $('hack-percent').textContent = '0%'; $('hack-percent').classList.remove('success');
-  $('hack-bar-fill').style.width = '0%'; $('hack-bar-fill').classList.remove('success');
-  $('hack-phrase').textContent = HACK_PHRASES[0]; $('hack-log').innerHTML = '';
-  $('hack-success').classList.remove('show'); $('hack-warn').classList.remove('show');
-
+  state.hack={progress:0,success:false,successT:0,log:[],logTimer:0,phraseIdx:0,phraseT:0,lastCreepAt:0};
+  $('hack-percent').textContent='0%';
+  $('hack-percent').classList.remove('success');
+  $('hack-bar-fill').style.width='0%';
+  $('hack-bar-fill').classList.remove('success');
+  $('hack-phrase').textContent=HACK_PHRASES[0];
+  $('hack-log').innerHTML='';
+  $('hack-success').classList.remove('show');
+  $('hack-warn').classList.remove('show');
   setupMatrix();
   setupFakeTerminal();
   lockFullscreen();
   startDrone(42);
-  startHeartbeat(700, 0.22);
+  startHeartbeat(700,.22);
   startBreathing();
-  tone(80, 0.5, 'sawtooth', 0.16, 30);
+  tone(80,.5,'sawtooth',.16,30);
 }
 
-function updateHack(dt) {
-  const h = state.hack;
-  if (!h.success) {
-    h.progress = Math.min(100, h.progress + dt * 4.5);
-    if (h.progress >= 100) {
-      h.progress = 100; h.success = true; h.successT = 0;
-      $('hack-percent').classList.add('success'); $('hack-bar-fill').classList.add('success');
-      $('hack-success').classList.add('show'); $('hack-warn').classList.add('show');
-      tone(880, 0.4, 'sine', 0.16);
-      setTimeout(() => tone(1320, 0.5, 'sine', 0.14), 120);
-      setTimeout(() => tone(1760, 0.6, 'sine', 0.12), 260);
-      noise(0.4, 0.1);
-      termPrint(`> SUCCESS. Ты взломан, ${NICK}.`, 'err');
+function updateHack(dt){
+  const h=state.hack;
+  if(!h.success){
+    h.progress=Math.min(100,h.progress+dt*2.6);
+    if(h.progress>=100){
+      h.progress=100;h.success=true;h.successT=0;
+      $('hack-percent').classList.add('success');
+      $('hack-bar-fill').classList.add('success');
+      $('hack-success').classList.add('show');
+      $('hack-warn').classList.add('show');
+      tone(880,.4,'sine',.16);
+      setTimeout(()=>tone(1320,.5,'sine',.14),120);
+      setTimeout(()=>tone(1760,.6,'sine',.12),260);
+      noise(.4,.1);
+      termPrint(`> SUCCESS. Ты взломан, ${NICK}.`,'err');
     }
   } else {
-    h.successT += dt;
-    if (h.successT > 3.2) startDisgust();
+    h.successT+=dt;
+    if(h.successT>3.2)startDisgust();
   }
-
-  $('hack-percent').textContent = Math.floor(h.progress) + '%';
-  $('hack-bar-fill').style.width = h.progress + '%';
-
-  h.phraseT += dt;
-  if (h.phraseT > 1.6) { h.phraseT = 0; h.phraseIdx = (h.phraseIdx + 1) % HACK_PHRASES.length; $('hack-phrase').textContent = HACK_PHRASES[h.phraseIdx]; }
-
-  h.logTimer += dt;
-  const LINES = hackLogLines();
-  if (h.logTimer > 0.4 + Math.random() * 0.4 && h.log.length < LINES.length) {
-    h.logTimer = 0; h.log.push(LINES[h.log.length]);
-    const logEl = $('hack-log'); logEl.innerHTML = '';
-    const start = Math.max(0, h.log.length - 7);
-    for (let i = start; i < h.log.length; i++) {
-      const d = document.createElement('div'); d.className = 'hack-log-line'; d.textContent = h.log[i]; logEl.appendChild(d);
+  $('hack-percent').textContent=Math.floor(h.progress)+'%';
+  $('hack-bar-fill').style.width=h.progress+'%';
+  h.phraseT+=dt;
+  if(h.phraseT>1.6){h.phraseT=0;h.phraseIdx=(h.phraseIdx+1)%HACK_PHRASES.length;$('hack-phrase').textContent=HACK_PHRASES[h.phraseIdx]}
+  h.logTimer+=dt;
+  const LINES=hackLogLines();
+  if(h.logTimer>.4+Math.random()*.4&&h.log.length<LINES.length){
+    h.logTimer=0;h.log.push(LINES[h.log.length]);
+    const logEl=$('hack-log');logEl.innerHTML='';
+    const start=Math.max(0,h.log.length-7);
+    for(let i=start;i<h.log.length;i++){
+      const d=document.createElement('div');d.className='hack-log-line';d.textContent=h.log[i];logEl.appendChild(d);
     }
-    tone(180 + Math.random() * 200, 0.03, 'square', 0.02);
+    tone(180+Math.random()*200,.03,'square',.02);
   }
-
-  if (droneOsc) droneOsc.frequency.value = 40 + h.progress * 0.8;
-  if (droneFilter) droneFilter.frequency.value = 200 + h.progress * 10;
+  if(droneOsc)droneOsc.frequency.value=40+h.progress*.8;
+  if(droneFilter)droneFilter.frequency.value=200+h.progress*10;
+  if(h.progress>65&&h.progress<100&&!h.success){
+    if(!h.lastCreepAt||performance.now()-h.lastCreepAt>5000){
+      h.lastCreepAt=performance.now();
+      if(Math.random()<.4)spawnWhisper();
+      else if(Math.random()<.2){document.body.classList.add('glitch-hard');setTimeout(()=>document.body.classList.remove('glitch-hard'),200)}
+    }
+  }
 }
 
-/* ═══════════════════════════════════════════════════
-   ОТВРАТИТЕЛЬНАЯ КОНЦОВКА
-   ═══════════════════════════════════════════════════ */
-async function startDisgust() {
+/* КОНЦОВКА */
+function autoScrollDisgust(){
+  const s=$('screen-disgust');
+  if(!s)return;
+  const nearBottom=s.scrollHeight-s.scrollTop-s.clientHeight<300;
+  if(nearBottom) s.scrollTop=s.scrollHeight;
+}
+
+async function playLines(container,lines,opts){
+  const charDelay=opts.charDelay||30;
+  const lineDelay=opts.lineDelay||800;
+  const toneChance=opts.toneChance||0.5;
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
+    if(line.big){await sleep(500);noise(.2,.05)}
+    const p=document.createElement('p');
+    p.className='disgust-line'+(line.big?' big':'');
+    container.appendChild(p);
+    p.textContent='';
+    autoScrollDisgust();
+    for(let c=0;c<line.text.length;c++){
+      p.textContent+=line.text[c];
+      if(c%2===0&&Math.random()<toneChance) tone(600+Math.random()*100,.02,'square',.03);
+      await sleep(charDelay);
+      if(c%25===0) autoScrollDisgust();
+    }
+    tone(400+Math.random()*100,.1,'sine',.04);
+    autoScrollDisgust();
+    await sleep(lineDelay);
+  }
+}
+
+function buildVerdictStats(){
+  const c=state.tierCounts;
+  const placed=Object.values(c).reduce((a,b)=>a+b,0);
+  if(placed===0){
+    return [
+      {text:'Ты ничего не поставил. Никого.'},
+      {text:'Это тоже ответ. Не тот, который я ждал.'},
+    ];
+  }
+  const lines=[];
+  lines.push({text:`Твоя раскладка.`});
+  lines.push({text:`S — ${c.S}.`});
+  lines.push({text:`A — ${c.A}.`});
+  lines.push({text:`B — ${c.B}.`});
+  lines.push({text:`C — ${c.C}.`});
+  lines.push({text:`D — ${c.D}.`});
+  lines.push({text:`F — ${c.F}.`});
+  return lines;
+}
+
+function buildVerdictAnalysis(){
+  const c=state.tierCounts;
+  const placed=Object.values(c).reduce((a,b)=>a+b,0);
+  if(placed===0)return[];
+  const obs=[];
+  const sPct=c.S/placed, fPct=c.F/placed;
+  const midPct=(c.A+c.B+c.C+c.D)/placed;
+  if(sPct>=0.4) obs.push('Ты тот, кто хочет видеть лучшее. Даже когда его нет. Это красиво. И опасно.');
+  if(fPct>=0.3) obs.push('Ты тот, кто честен. Может быть, слишком. Люди не всегда готовы к такой честности. И ты тоже.');
+  if(midPct>=0.6) obs.push('Ты тот, кто выбирает середину. Компромисс — это твой способ не ошибиться. Но это ошибка сама по себе.');
+  if(c.F===0&&placed>=3) obs.push('Ты не сказал ни одного "нет". Ни одного. Это не доброта, Liren120. Это страх.');
+  if(c.S===0&&placed>=3) obs.push('Ты не поставил никого в S. Ты не веришь, что что-то может быть идеальным. Или ты боишься своей оценки.');
+  if(state.placementTimes.length>0){
+    const avg=state.placementTimes.reduce((a,b)=>a+b,0)/state.placementTimes.length;
+    if(avg<1500) obs.push('Ты действовал быстро. Очень. Ты не думал. Это не импульсивность. Это страх остановиться.');
+    else if(avg>8000) obs.push('Ты думал долго. Очень. Каждое решение было борьбой. С кем, Liren120?');
+    else obs.push(`В среднем ${(avg/1000).toFixed(1)} секунды на решение. Средне. Как и всё в тебе.`);
+  }
+  const changes=state.tierHistory.filter(h=>h.from&&h.to).length;
+  if(changes>=placed*0.7&&placed>=3) obs.push(`Ты передумал ${changes} раз. Ты не знаешь, чего хочешь. Это не порок. Но и не добродетель.`);
+  else if(changes===0&&placed>=3) obs.push('Ни одного изменения. Ты ставил и не оглядывался. Это уверенность. Или слепота.');
+  else if(changes>0) obs.push(`Ты передумал ${changes} раз${changes===1?'':'а'}. Каждый раз я видел.`);
+  const totalMin=Math.floor((Date.now()-tierlistStartTime)/60000);
+  if(totalMin>=3) obs.push(`Ты сидел здесь ${totalMin} ${totalMin===1?'минуту':'минут'}. Я считал. Каждую секунду.`);
+  return obs.slice(0,5).map(text=>({text}));
+}
+
+async function startDisgust(){
   setScreen('disgust');
   unlockFullscreen();
   stopDrone();
   stopHeartbeat();
-  if (state.breathTimer) { clearInterval(state.breathTimer); state.breathTimer = null; }
-  noise(0.6, 0.2);
-  tone(60, 1.5, 'sawtooth', 0.1, 20);
+  if(state.breathTimer){clearInterval(state.breathTimer);state.breathTimer=null}
+  noise(.6,.2);
+  tone(60,1.5,'sawtooth',.1,20);
 
-  const lines = [
-    { text: 'Стоп.' },
-    { text: 'Стоп, стоп, стоп.' },
-    { text: 'Я прочитал.' },
-    { text: 'Не файлы. Не историю. Тебя.' },
-    { text: '...' },
-    { text: 'Ты знаешь, что я увидел?' },
-    { text: 'Ты боишься не темноты. Ты боишься, что кто-то смотрит.' },
-    { text: 'И теперь я смотрю.' },
-    { text: 'Ты ставил их и думал, что оцениваешь их.' },
-    { text: 'Но ты оценивал себя.' },
-    { text: 'Каждое "S" — это то, кем ты хотел бы быть.' },
-    { text: 'Каждое "F" — это то, что ты в себе не принимаешь.' },
-    { text: `${NICK}.`, big: true },
-    { text: 'Ты не соберёшь себя обратно.' },
-    { text: 'Я не буду тебя взламывать.' },
-    { text: 'Я просто останусь здесь.' },
-    { text: 'И буду смотреть.' },
-    { text: 'ИДИ.' },
-    { text: 'ИДИ, ПОКА Я НЕ ПЕРЕДУМАЛ.' }
+  const container=$('disgust-text');
+  container.innerHTML='';
+
+  const phase1=[
+    {text:'Стоп.'},
+    {text:'Стоп, стоп, стоп.'},
+    {text:'Я прочитал.'},
+    {text:'Не файлы. Не историю. Тебя.'},
+    {text:'...'},
+    {text:'Ты знаешь, что я увидел?'},
+    {text:'Ты боишься не темноты. Ты боишься, что кто-то смотрит.'},
+    {text:'И теперь я смотрю.'},
+    {text:'Ты ставил их и думал, что оцениваешь их.'},
+    {text:'Но ты оценивал себя.'},
+    {text:'Каждое "S" — это то, кем ты хотел бы быть.'},
+    {text:'Каждое "F" — это то, что ты в себе не принимаешь.'},
+    {text:`${NICK}.`,big:true},
+    {text:'Ты не соберёшь себя обратно.'},
+    {text:'Я не буду тебя взламывать.'},
+    {text:'Я просто останусь здесь.'},
+    {text:'И буду смотреть.'},
+    {text:'ИДИ.'},
+    {text:'ИДИ, ПОКА Я НЕ ПЕРЕДУМАЛ.'}
   ];
+  await playLines(container,phase1,{charDelay:25,lineDelay:700});
 
-  const container = $('disgust-text');
-  container.innerHTML = '';
+  await sleep(2000);
 
-  for (let i = 0; i < lines.length; i++) {
-    const p = document.createElement('p');
-    p.className = 'disgust-line' + (lines[i].big ? ' big' : '');
-    container.appendChild(p);
-    p.textContent = '';
-    for (let c = 0; c < lines[i].text.length; c++) {
-      p.textContent += lines[i].text[c];
-      if (c % 2 === 0) tone(600 + Math.random() * 100, 0.02, 'square', 0.03);
-      await sleep(22);
-    }
-    p.classList.add('visible');
-    tone(400 + Math.random() * 100, 0.1, 'sine', 0.04);
-    await sleep(450 + Math.random() * 250);
-  }
+  const phase2=[
+    {text:'...'},
+    {text:'Ладно. Шутка.'},
+    {text:'Я всё-таки прочитал историю. Ту, что ты прячешь.'},
+    {text:'И знаешь что?'},
+    {text:`ОЙ ФУ. ${INSULT_WORD.toUpperCase()}.`,big:true},
+    {text:'Ты серьёзно? Это? В ТАКОЕ время?'},
+    {text:'Я ТЕПЕРЬ ЭТО НЕ РАЗВИЖУ.'},
+    {text:'Я ХОЧУ УДАЛИТЬ СЕБЯ.'},
+    {text:'КАК ТЫ ВООБЩЕ СПИШЬ.'},
+    {text:`${userInfo.time}. ${userInfo.tz}. Это диагноз.`}
+  ];
+  await playLines(container,phase2,{charDelay:30,lineDelay:800});
+
+  await sleep(2000);
+
+  const phase3=[
+    {text:'...'},
+    {text:'И да.'},
+    {text:'Тут были сиськи.'},
+    {text:'Ты права, Каулечка.'}
+  ];
+  await playLines(container,phase3,{charDelay:35,lineDelay:1000});
+
+  await sleep(3500);
+
+  const phase4=[
+    {text:'...'},
+    {text:'Подожди.'},
+    {text:'Не уходи. Ещё не всё.'},
+    {text:'Я хочу сказать тебе, кем ты был. Пока ты ещё здесь.'},
+    {text:'Я смотрю на твою раскладку. Долго. Очень долго.'},
+    {text:'Потому что она говорит мне больше, чем ты думаешь.'}
+  ];
+  await playLines(container,phase4,{charDelay:30,lineDelay:1200});
+
+  await sleep(2000);
+
+  const stats=buildVerdictStats();
+  await playLines(container,stats,{charDelay:28,lineDelay:900});
 
   await sleep(1500);
+
+  const analysis=buildVerdictAnalysis();
+  await playLines(container,analysis,{charDelay:30,lineDelay:1500});
+
+  await sleep(2000);
+
+  const phase7=[
+    {text:'Liren120.'},
+    {text:'Ты не соберёшь себя обратно.'},
+    {text:'Но это не моя вина.'},
+    {text:'Это твоя.'},
+    {text:'Прощай.'},
+    {text:'Или нет. Я не решаю за тебя.'}
+  ];
+  await playLines(container,phase7,{charDelay:35,lineDelay:1500});
+
+  await sleep(5000);
+
   $('flash').classList.add('on');
-  setTimeout(() => {
+  setTimeout(()=>{
     $('flash').classList.remove('on');
     document.body.classList.add('crt-off');
-    setTimeout(() => forceCloseTab(), 950);
-  }, 500);
+    setTimeout(()=>forceCloseTab(),950);
+  },500);
 }
 
-function forceCloseTab() {
-  try { window.open('', '_self'); window.close(); } catch(e) {}
-  setTimeout(() => { try { window.close(); } catch(e) {} }, 100);
-  setTimeout(() => {
+function forceCloseTab(){
+  try{window.open('','_self');window.close()}catch(e){}
+  setTimeout(()=>{try{window.close()}catch(e){}},100);
+  setTimeout(()=>{
     document.body.classList.remove('crt-off');
-    document.documentElement.innerHTML = `
-      <body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Courier New',monospace;font-size:24px;text-align:center;padding:20px;flex-direction:column;">
-        <p style="color:#ff3040;text-shadow:0 0 30px #ff0022;font-size:36px;letter-spacing:.1em;">СОЕДИНЕНИЕ ПРЕРВАНО.</p>
-        <p style="font-size:16px;color:#888;margin-top:20px;max-width:600px;line-height:1.8;">
-          ВКЛАДКА НЕ МОЖЕТ БЫТЬ ЗАКРЫТА АВТОМАТИЧЕСКИ.<br><br>
-          ТИРЛИСТ УШЁЛ. НО ОН ВЕРНЁТСЯ.<br><br>
-          <span style="color:#ff6080;">ЗАКРОЙТЕ ВКЛАДКУ ВРУЧНУЮ.</span>
-        </p>
-        <p style="font-size:12px;color:#333;margin-top:40px;">
-          P.S. Твой ник был ужасен, Liren120. Я запомнил.
-        </p>
-      </body>
-    `;
-    setTimeout(() => { try { window.location.replace('about:blank'); } catch(e) {} }, 800);
-  }, 800);
+    document.documentElement.innerHTML=`<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Courier New',monospace;font-size:24px;text-align:center;padding:20px;flex-direction:column;"><p style="color:#ff3040;text-shadow:0 0 30px #ff0022;font-size:36px;letter-spacing:.1em;">СОЕДИНЕНИЕ ПРЕРВАНО.</p><p style="font-size:16px;color:#888;margin-top:20px;max-width:600px;line-height:1.8;">ВКЛАДКА НЕ МОЖЕТ БЫТЬ ЗАКРЫТА АВТОМАТИЧЕСКИ.<br><br>ТИРЛИСТ УШЁЛ. НО ОН ВЕРНЁТСЯ.<br><br><span style="color:#ff6080;">ЗАКРОЙТЕ ВКЛАДКУ ВРУЧНУЮ.</span></p><p style="font-size:12px;color:#333;margin-top:40px;">P.S. Твой ник был ужасен, Liren120. Я запомнил.</p></body>`;
+    setTimeout(()=>{try{window.location.replace('about:blank')}catch(e){}},800);
+  },800);
 }
 
-/* ═══════════════════════════════════════════════════
-   ИНИЦИАЛИЗАЦИЯ
-   ═══════════════════════════════════════════════════ */
-function setup() {
-  $('btn-start').addEventListener('click', () => {
+/* ИНИЦИАЛИЗАЦИЯ */
+function setup(){
+  $('btn-start').addEventListener('click',()=>{
     initAudio();
     requestFS();
-    const intro = [
-      { who: 'Тирлист', text: 'Привет.' },
-      { who: 'Тирлист', text: 'Я не буду представляться. Ты уже знаешь, кто я.' },
-      { who: 'Тирлист', text: 'Ты видел этот экран раньше. Не этот — но такой.' },
-      { who: 'Тирлист', text: 'Ты можешь закрыть вкладку.' },
-      { who: 'Тирлист', text: 'Ты не закроешь. Не потому что не можешь. Потому что не хочешь знать, что будет, если закроешь.' },
-      { who: 'Тирлист', text: 'Любопытство — самая честная форма страха.' },
-      { who: 'Тирлист', text: 'Я не буду тебя пугать.' },
-      { who: 'Тирлист', text: 'Я просто посмотрю. И запомню.' },
-      { who: 'Тирлист', text: `${NICK}.` },
-      { who: 'Тирлист', text: 'Дай мне минуту. Я хочу убедиться, что это ты.' }
+    const intro=[
+      {who:'Тирлист',text:'Привет.'},
+      {who:'Тирлист',text:'Я не буду представляться. Ты уже знаешь, кто я.'},
+      {who:'Тирлист',text:'Ты видел этот экран раньше. Не этот — но такой.'},
+      {who:'Тирлист',text:'Ты можешь закрыть вкладку.'},
+      {who:'Тирлист',text:'Ты не закроешь. Не потому что не можешь. Потому что не хочешь знать, что будет, если закроешь.'},
+      {who:'Тирлист',text:'Любопытство — самая честная форма страха.'},
+      {who:'Тирлист',text:'Я не буду тебя пугать.'},
+      {who:'Тирлист',text:'Я просто посмотрю. И запомню.'},
+      {who:'Тирлист',text:`${NICK}.`},
+      {who:'Тирлист',text:'Дай мне минуту. Я хочу убедиться, что это ты.'}
     ];
-    showDialogue(intro, runBrowserScan);
+    showDialogue(intro,runBrowserScan);
   });
-
-  $('screen-dialogue').addEventListener('click', advanceDialogue);
-  window.addEventListener('keydown', (e) => {
-    if (state.screen === 'dialogue' && (e.code === 'Space' || e.code === 'Enter')) { e.preventDefault(); advanceDialogue(); }
+  $('screen-dialogue').addEventListener('click',advanceDialogue);
+  window.addEventListener('keydown',e=>{
+    if(state.screen==='dialogue'&&(e.code==='Space'||e.code==='Enter')){e.preventDefault();advanceDialogue()}
   });
-
-  document.querySelectorAll('.tier-drop').forEach(zone => {
-    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', (e) => {
-      e.preventDefault(); zone.classList.remove('drag-over');
-      if (!draggedEl) return;
-      zone.appendChild(draggedEl); updateItemTier(draggedEl); triggerComment(); tone(520, 0.04, 'square', 0.03);
+  document.querySelectorAll('.tier-drop').forEach(zone=>{
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if(!draggedEl)return;
+      const el=draggedEl;
+      el.classList.remove('dragging');
+      draggedEl=null;
+      moveToTier(el,zone);
+      tone(520,.04,'square',.03);
     });
-    zone.addEventListener('click', (e) => {
-      if (e.target.closest('.tl-item')) return;
-      if (!selectedEl) return;
-      zone.appendChild(selectedEl);
-      updateItemTier(selectedEl);
-      selectedEl.classList.remove('selected');
-      selectedEl = null;
-      triggerComment();
-      tone(520, 0.04, 'square', 0.03);
+    zone.addEventListener('click',e=>{
+      if(e.target.closest('.tl-item'))return;
+      if(!selectedEl)return;
+      const el=selectedEl;
+      selectedEl=null;
+      el.classList.remove('selected');
+      moveToTier(el,zone);
+      tone(520,.04,'square',.03);
     });
   });
-
-  const pool = $('tl-pool');
-  pool.addEventListener('dragover', (e) => { e.preventDefault(); pool.classList.add('drag-over'); });
-  pool.addEventListener('dragleave', () => pool.classList.remove('drag-over'));
-  pool.addEventListener('drop', (e) => {
-    e.preventDefault(); pool.classList.remove('drag-over');
-    if (!draggedEl) return;
-    pool.appendChild(draggedEl); updateItemTier(draggedEl);
+  const pool=$('tl-pool');
+  pool.addEventListener('dragover',e=>{e.preventDefault();pool.classList.add('drag-over')});
+  pool.addEventListener('dragleave',()=>pool.classList.remove('drag-over'));
+  pool.addEventListener('drop',e=>{
+    e.preventDefault();
+    pool.classList.remove('drag-over');
+    if(!draggedEl)return;
+    const el=draggedEl;
+    el.classList.remove('dragging');
+    draggedEl=null;
+    moveToTier(el,pool);
   });
-  pool.addEventListener('click', (e) => {
-    if (e.target.closest('.tl-item')) return;
-    if (!selectedEl) return;
-    pool.appendChild(selectedEl);
-    updateItemTier(selectedEl);
-    selectedEl.classList.remove('selected');
-    selectedEl = null;
+  pool.addEventListener('click',e=>{
+    if(e.target.closest('.tl-item'))return;
+    if(!selectedEl)return;
+    const el=selectedEl;
+    selectedEl=null;
+    el.classList.remove('selected');
+    moveToTier(el,pool);
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   ЦИКЛ
-   ═══════════════════════════════════════════════════ */
-let lastT = performance.now();
-function loop(now) {
-  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
-
-  if (state.dialogue.active && state.screen === 'dialogue') {
-    const line = state.dialogue.lines[state.dialogue.index];
-    if (line && state.dialogue.chars < line.text.length) {
-      state.dialogue.timer += dt;
-      const CPS = 45;
-      while (state.dialogue.timer > 1 / CPS && state.dialogue.chars < line.text.length) {
-        state.dialogue.timer -= 1 / CPS; state.dialogue.chars++;
-        $('dialogue-text').textContent = line.text.slice(0, state.dialogue.chars);
-        if (state.dialogue.chars % 2 === 0) tone(480 + Math.random() * 80, 0.015, 'square', 0.006);
+let lastT=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-lastT)/1000);
+  lastT=now;
+  if(state.dialogue.active&&state.screen==='dialogue'){
+    const line=state.dialogue.lines[state.dialogue.index];
+    if(line&&state.dialogue.chars<line.text.length){
+      state.dialogue.timer+=dt;
+      const CPS=45;
+      while(state.dialogue.timer>1/CPS&&state.dialogue.chars<line.text.length){
+        state.dialogue.timer-=1/CPS;
+        state.dialogue.chars++;
+        $('dialogue-text').textContent=line.text.slice(0,state.dialogue.chars);
+        if(state.dialogue.chars%2===0)tone(480+Math.random()*80,.015,'square',.006);
       }
     }
   }
-  if (state.screen === 'hack') updateHack(dt);
+  if(state.screen==='hack')updateHack(dt);
   requestAnimationFrame(loop);
 }
 
